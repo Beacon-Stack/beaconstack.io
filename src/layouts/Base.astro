@@ -1,0 +1,393 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  /** Active nav item: 'home' | 'pulse' | 'pilot' | 'prism' | 'haul' */
+  active?: string;
+}
+
+const {
+  title,
+  description = 'Beacon is a set of four self-hosted Go apps for home media servers — service registry, TV, movies, and BitTorrent in one connected stack.',
+  active = '',
+} = Astro.props;
+
+const nav = [
+  { href: '/pulse', label: 'Pulse', key: 'pulse' },
+  { href: '/pilot', label: 'Pilot', key: 'pilot' },
+  { href: '/prism', label: 'Prism', key: 'prism' },
+  { href: '/haul', label: 'Haul', key: 'haul' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body data-app={active}>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="/" class="wordmark" aria-label="The Beacon Stack — home">
+          <span class="wordmark-beacon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="9" r="3" fill="#10b981"/>
+              <circle cx="9" cy="9" r="3" fill="#10b981" opacity="0.3">
+                <animate attributeName="r" values="3;8;3" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          </span>
+          <span class="wordmark-text">The Beacon Stack</span>
+        </a>
+
+        <nav aria-label="App navigation">
+          <ul class="nav-list">
+            {nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class={`nav-link ${active === item.key ? 'nav-link--active' : ''}`}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a
+                href="https://github.com/beacon-stack"
+                class="nav-cta"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Beacon on GitHub (opens in new tab)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0">
+                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="/" class="footer-wordmark">The Beacon Stack</a>
+          <p class="footer-tagline">Self-hosted media stack. MIT licensed. Zero telemetry.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <span class="footer-col-label">Apps</span>
+            <a href="/pulse">Pulse</a>
+            <a href="/pilot">Pilot</a>
+            <a href="/prism">Prism</a>
+            <a href="/haul">Haul</a>
+          </div>
+          <div class="footer-col">
+            <span class="footer-col-label">Source</span>
+            <a href="https://github.com/beacon-stack" target="_blank" rel="noopener noreferrer">GitHub org</a>
+            <a href="https://github.com/beacon-stack/pulse" target="_blank" rel="noopener noreferrer">pulse</a>
+            <a href="https://github.com/beacon-stack/pilot" target="_blank" rel="noopener noreferrer">pilot</a>
+            <a href="https://github.com/beacon-stack/prism" target="_blank" rel="noopener noreferrer">prism</a>
+            <a href="https://github.com/beacon-stack/haul" target="_blank" rel="noopener noreferrer">haul</a>
+          </div>
+          <div class="footer-col">
+            <span class="footer-col-label">About</span>
+            <span class="footer-note">Built in the open</span>
+            <span class="footer-note">No update checks</span>
+            <span class="footer-note">No crash reporting</span>
+            <span class="footer-note">No analytics</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+          <span>MIT License</span>
+          <span class="footer-sep">/</span>
+          <a href="https://github.com/beacon-stack" target="_blank" rel="noopener noreferrer">github.com/beacon-stack</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Scroll-reveal: observe .reveal elements
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+      // Terminal copy buttons
+      document.querySelectorAll('.terminal-copy-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const terminal = btn.closest('.terminal');
+          const code = terminal?.querySelector('.terminal-body')?.textContent ?? '';
+          navigator.clipboard.writeText(code.trim()).then(() => {
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = orig; }, 1800);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  /* ── Fixed 64px header ── */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 64px;
+    background-color: rgba(10, 11, 16, 0.85);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .header-inner {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Wordmark */
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .wordmark-beacon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+  }
+
+  .wordmark-text {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-fg);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  /* Nav */
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-fg-2);
+    border-radius: 5px;
+    transition: color 0.12s, background-color 0.12s;
+  }
+
+  .nav-link:hover {
+    color: var(--color-fg);
+    background-color: var(--color-surface-2);
+  }
+
+  .nav-link--active {
+    color: var(--color-accent);
+  }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-fg-2);
+    border: 1px solid var(--color-border-2);
+    border-radius: 6px;
+    transition: color 0.12s, border-color 0.12s, background-color 0.12s;
+  }
+
+  .nav-cta:hover {
+    color: var(--color-fg);
+    border-color: var(--color-fg-3);
+    background-color: var(--color-surface-2);
+  }
+
+  /* Make sure main content clears the fixed header */
+  main {
+    padding-top: 64px;
+  }
+
+  /* Footer */
+  .site-footer {
+    margin-top: 6rem;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+  }
+
+  .footer-inner {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand {
+    flex: 1;
+    min-width: 14rem;
+  }
+
+  .footer-wordmark {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-fg);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-tagline {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-fg-3);
+    line-height: 1.6;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 7rem;
+    font-size: 0.8125rem;
+  }
+
+  .footer-col-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-fg-3);
+    margin-bottom: 0.25rem;
+  }
+
+  .footer-col a {
+    color: var(--color-fg-2);
+    transition: color 0.12s;
+  }
+
+  .footer-col a:hover {
+    color: var(--color-fg);
+  }
+
+  .footer-note {
+    color: var(--color-fg-3);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .footer-bottom-inner {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    font-size: 0.75rem;
+    color: var(--color-fg-3);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .footer-bottom-inner a {
+    color: var(--color-fg-3);
+    transition: color 0.12s;
+  }
+
+  .footer-bottom-inner a:hover {
+    color: var(--color-fg-2);
+  }
+
+  .footer-sep {
+    opacity: 0.4;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header-inner {
+      padding: 0 1.25rem;
+    }
+
+    .wordmark-text {
+      display: none;
+    }
+
+    .nav-link {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.8125rem;
+    }
+
+    .footer-inner {
+      padding: 2rem 1.25rem;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .footer-links {
+      gap: 2rem;
+    }
+
+    .footer-bottom-inner {
+      padding: 1rem 1.25rem;
+    }
+  }
+</style>

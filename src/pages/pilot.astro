@@ -1,0 +1,473 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Pilot — TV series manager · The Beacon Stack"
+  description="Pilot is a self-hosted TV series manager. Tracks a TV library, polls indexers for new episodes, and files completed downloads into season folders."
+  active="pilot"
+>
+
+  <!-- Sub-hero -->
+  <section class="sub-hero">
+    <div class="sub-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="sub-hero-inner">
+        <span class="app-badge">TV series manager</span>
+        <h1 class="app-title"><span class="gradient-text">Pilot</span></h1>
+        <p class="app-tagline">
+          A self-hosted TV series manager with a React web UI and a REST API. Tracks
+          your TV library via TMDB, polls indexers for new episodes, grabs through your
+          download client, and files completed downloads into season folders.
+        </p>
+        <div class="app-actions">
+          <a href="https://github.com/beacon-stack/pilot" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+            View on GitHub &rarr;
+          </a>
+          <a href="#install" class="btn btn--outline">Install</a>
+        </div>
+        <div class="app-meta">
+          <span class="meta-pill">Port :8383</span>
+          <span class="meta-pill">Go 1.25</span>
+          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">MIT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature grid -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Features</p>
+        <h2 class="section-heading">What Pilot does</h2>
+      </div>
+      <div class="feature-grid reveal">
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          </div>
+          <h3>Library management</h3>
+          <p>Full TMDB integration for search, metadata, posters, and episode tracking. Per-series monitoring with configurable monitor types. Season and episode-level monitoring controls, wanted page, and a calendar view of upcoming episodes.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Release handling</h3>
+          <p>Quality profiles with resolution, source, codec, and HDR dimensions. Custom formats with regex matching and weighted scoring. Title-matched release filter — releases for other shows with overlapping title words don't get grabbed.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Dead-torrent detection</h3>
+          <p>The stallwatcher polls your download client for stalled torrents and blocklists them. A per-episode circuit breaker caps auto-blocklist events at three strikes per 24 hours so a misconfigured indexer can't trigger a retry storm.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+          </div>
+          <h3>Automation</h3>
+          <p>Automatic RSS sync on a configurable schedule. Auto-import of completed downloads with rename support. Import lists from TMDB, Trakt, Plex Watchlist, and custom URL lists. Season folder organization with configurable naming.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <h3>Integrations</h3>
+          <p>Indexers: Newznab, Torznab, Pulse-managed. Download clients: Haul, qBittorrent, Deluge, Transmission, SABnzbd, NZBGet. Media servers: Plex, Jellyfin, Emby. Notifications: Discord, Slack, Telegram, Pushover, Gotify, ntfy, email, webhook.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          </div>
+          <h3>Command palette</h3>
+          <p>Cmd/Ctrl+K command palette with fuzzy search for pages, series, and actions. Dark and light themes with 10+ presets shared across the Beacon services. Live queue updates over WebSocket. OpenAPI docs at <code>/api/docs</code>.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshot placeholders -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Interface</p>
+        <h2 class="section-heading">Screenshots</h2>
+        <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary.</p>
+      </div>
+      <div class="screenshot-grid reveal">
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Library — series grid with poster art</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Season detail — episode list with monitoring controls</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Manual search — quality badges, episode count tier</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Under the hood -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Technical</p>
+        <h2 class="section-heading">Advanced features</h2>
+      </div>
+      <div class="detail-grid reveal">
+
+        <div class="detail-card">
+          <h3>Title matching</h3>
+          <p>The release filter runs every parsed title through a matcher in <code>internal/core/parser/parser.go</code> that rejects titles whose parsed show name doesn't match the requested series after normalization. Year suffixes, bracketed edition tags, and common release-group stylings all pass through cleanly.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Stallwatcher circuit breaker</h3>
+          <p><code>internal/core/stallwatcher/service.go</code> polls the download client's stall endpoint on a configurable interval, classifies stalled torrents by reason, and blocklists them. The per-episode circuit breaker caps auto-blocklist events at three strikes per 24 hours.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Interactive search ranking</h3>
+          <p>Season-level interactive search orders releases by Quality → Custom Format Score → Protocol → Episode Count. The Episode Count tier lifts season packs above individual episodes within the same quality tier. Pack-type filter pills (Season Pack / Episodes / All) default to Season Pack for season-scoped searches.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Sonarr migration</h3>
+          <p>Pilot imports from a running Sonarr instance in one pass. Open Settings → Import, enter the Sonarr URL and API key, preview, and select categories. Supported: quality profiles, libraries, indexers, download clients, and monitored series.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="section section--alt" id="install">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Install</p>
+        <h2 class="section-heading">Getting started with Pilot</h2>
+        <p class="section-lead">Standalone Docker or full stack via <a href="https://github.com/beacon-stack/stack" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/stack</a>.</p>
+      </div>
+      <div class="terminal reveal" style="max-width:620px;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
+  <span class="syn-flag">--name</span> pilot \
+  <span class="syn-flag">-p</span> 8383:8383 \
+  <span class="syn-flag">-v</span> /path/to/config:/config \
+  <span class="syn-flag">-v</span> /path/to/tv:/tv \
+  ghcr.io/beacon-stack/pilot:latest</pre>
+      </div>
+      <p class="install-note reveal">Open <code>http://localhost:8383</code> — Pilot generates an API key on first run. Find it in Settings → App Settings.</p>
+    </div>
+  </section>
+
+  <!-- Config table -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Configuration</p>
+        <h2 class="section-heading">Environment variables</h2>
+      </div>
+      <div class="config-table-wrap reveal">
+        <table class="config-table">
+          <thead>
+            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>PILOT_SERVER_PORT</code></td><td><code>8383</code></td><td>Web UI and API port</td></tr>
+            <tr><td><code>PILOT_DATABASE_DSN</code></td><td>—</td><td>Postgres DSN (required)</td></tr>
+            <tr><td><code>PILOT_AUTH_API_KEY</code></td><td>auto</td><td>API key; autogenerated on first run if unset</td></tr>
+            <tr><td><code>PILOT_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL (optional)</td></tr>
+            <tr><td><code>PILOT_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code></td></tr>
+            <tr><td><code>PILOT_LOG_FORMAT</code></td><td><code>json</code></td><td><code>json</code> or <code>text</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .sub-hero {
+    position: relative;
+    padding: 100px 0 80px;
+    overflow: hidden;
+  }
+
+  .sub-hero-glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse at center, var(--color-accent-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .sub-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.75em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background-color: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    color: var(--color-accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .app-title {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 1.25rem;
+  }
+
+  .app-tagline {
+    font-size: 1.125rem;
+    color: var(--color-fg-2);
+    line-height: 1.75;
+    max-width: 52ch;
+    margin-bottom: 2rem;
+  }
+
+  .app-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .app-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .meta-pill {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--color-fg-3);
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+  }
+
+  .section {
+    padding: 100px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .section--alt {
+    background-color: var(--color-surface);
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-placeholder {
+    background-color: var(--color-surface-2);
+    border: 1px dashed var(--color-border-2);
+    border-radius: 10px;
+    aspect-ratio: 16/10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .placeholder-label {
+    font-size: 0.75rem;
+    color: var(--color-fg-3);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .detail-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .detail-card h3 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.625rem;
+  }
+
+  .detail-card p {
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+    line-height: 1.65;
+  }
+
+  .detail-card code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .config-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-2);
+  }
+
+  .config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .config-table thead tr {
+    background-color: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .config-table th {
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-fg-3);
+    white-space: nowrap;
+  }
+
+  .config-table td {
+    padding: 0.75rem 1.25rem;
+    color: var(--color-fg-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .config-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .config-table tbody tr:nth-child(even) td {
+    background-color: rgba(255,255,255,0.02);
+  }
+
+  .config-table td code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.85em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .install-note {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+  }
+
+  .install-note code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .text-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .section-lead code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 900px) {
+    .sub-hero { padding: 80px 0 64px; }
+    .feature-grid,
+    .screenshot-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid { grid-template-columns: 1fr; }
+    .section { padding: 64px 0; }
+  }
+
+  @media (max-width: 600px) {
+    .feature-grid,
+    .screenshot-grid,
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>

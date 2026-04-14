@@ -1,0 +1,492 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Pulse — control plane · The Beacon Stack"
+  description="Pulse is the central service registry, indexer manager, and shared config layer for the Beacon media stack."
+  active="pulse"
+>
+
+  <!-- Sub-hero -->
+  <section class="sub-hero">
+    <div class="sub-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="sub-hero-inner">
+        <span class="app-badge">control plane</span>
+        <h1 class="app-title"><span class="gradient-text">Pulse</span></h1>
+        <p class="app-tagline">
+          Service registry and shared configuration layer. Beacon apps register with
+          it out of the box, and any Go service can join through the client SDK at
+          <code>pkg/sdk</code> — tap into shared indexers, quality profiles, and
+          settings with a single client instance.
+        </p>
+        <div class="app-actions">
+          <a href="https://github.com/beacon-stack/pulse" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+            View on GitHub &rarr;
+          </a>
+          <a href="#install" class="btn btn--outline">Install</a>
+        </div>
+        <div class="app-meta">
+          <span class="meta-pill">Port :9696</span>
+          <span class="meta-pill">Go 1.25</span>
+          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">MIT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature grid -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Features</p>
+        <h2 class="section-heading">What Pulse does</h2>
+      </div>
+      <div class="feature-grid reveal">
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <h3>Service registry</h3>
+          <p>Each Beacon service registers on startup with its name, type, URL, and capabilities, then heartbeats periodically. Move Pilot to a new host — Prism picks up the address on the next heartbeat cycle with no config edits.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <h3>Indexer management</h3>
+          <p>Add a Torznab endpoint once. Tag it <code>movies</code> and Prism picks it up. Tag it <code>tv</code> and Pilot gets it too. Built-in catalog with pre-filled schemas, one-click add, and a tester that verifies connectivity before saving.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>Quality profile management</h3>
+          <p>Quality profiles live in Pulse. Subscribing services mirror them with a <code>managed_by_pulse</code> flag. Edit a 1080p cutoff once in Pulse — both Pilot and Prism update without a config edit in either service.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>Shared settings store</h3>
+          <p>A typed key-value store for cross-service settings: <code>media.library_root</code>, <code>rename.colon_replacement</code>, <code>download.preferred_protocol</code>. Each service reads and subscribes to its relevant namespace.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <h3>WebSocket event stream</h3>
+          <p>Services subscribe to live updates at <code>/ws</code>. When shared state changes, every subscriber is notified immediately — no polling required. The SDK callback fires synchronously on each event.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          </div>
+          <h3>Go client SDK</h3>
+          <p>A drop-in SDK at <code>pkg/sdk</code> for any Go service. Register, discover peers, read and subscribe to shared config, and pull assigned indexers — all with one client instance and WebSocket-backed callbacks.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshot placeholders -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Interface</p>
+        <h2 class="section-heading">Dashboard</h2>
+        <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary. No separate server to run.</p>
+      </div>
+      <div class="screenshot-grid reveal">
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Dashboard — service overview + indexer status</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Indexer catalog — search, filter, one-click add</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Shared config — namespace filtering + subscriptions</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Under the hood -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Technical</p>
+        <h2 class="section-heading">Advanced features</h2>
+      </div>
+      <div class="detail-grid reveal">
+
+        <div class="detail-card">
+          <h3>API surface</h3>
+          <p>Full REST API (Huma v2 + Chi v5) under <code>/api/v1/</code>. OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/ws</code>. Everything the UI does is available over HTTP.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>SDK — register and subscribe</h3>
+          <div class="terminal" style="margin-top:0.75rem;">
+            <div class="terminal-bar">
+              <span class="terminal-dot terminal-dot--red"></span>
+              <span class="terminal-dot terminal-dot--yellow"></span>
+              <span class="terminal-dot terminal-dot--green"></span>
+              <span class="terminal-title">pkg/sdk</span>
+            </div>
+            <pre class="terminal-body" style="font-size:0.775rem;"><span class="syn-kw">client</span>, _ := sdk.New(sdk.Config&#123;
+    PulseURL: <span class="syn-string">"http://pulse:9696"</span>,
+    ServiceName: <span class="syn-string">"pilot"</span>,
+    Capabilities: []string&#123;<span class="syn-string">"supports_torrent"</span>&#125;,
+&#125;)
+client.Subscribe(ctx, <span class="syn-string">"media"</span>, func(ns, key, val string) &#123;
+    <span class="syn-comment">// fires on WebSocket events</span>
+&#125;)</pre>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Storage</h3>
+          <p>Postgres-backed state with Goose migrations and SQLC-generated type-safe query code. Zero configuration out of the box — all settings editable in the UI or via <code>PULSE_*</code> environment variables.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Tag management</h3>
+          <p>Central tag registry with usage counts. Tags drive indexer assignment (<code>tv</code>, <code>movies</code>, <code>all</code>), notification routing, and library filtering across every service — managed once in Pulse.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="section section--alt" id="install">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Install</p>
+        <h2 class="section-heading">Getting started with Pulse</h2>
+        <p class="section-lead">Standalone Docker for a single-service install. Full stack compose in <a href="https://github.com/beacon-stack/stack" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/stack</a>.</p>
+      </div>
+      <div class="terminal reveal" style="max-width:580px;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
+  <span class="syn-flag">--name</span> pulse \
+  <span class="syn-flag">-p</span> 9696:9696 \
+  <span class="syn-flag">-v</span> /path/to/config:/config \
+  ghcr.io/beacon-stack/pulse:latest</pre>
+      </div>
+      <p class="install-note reveal">Open <code>http://localhost:9696</code> — Pulse starts with zero additional configuration.</p>
+    </div>
+  </section>
+
+  <!-- Config table -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Configuration</p>
+        <h2 class="section-heading">Environment variables</h2>
+      </div>
+      <div class="config-table-wrap reveal">
+        <table class="config-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>PULSE_SERVER_HOST</code></td><td><code>0.0.0.0</code></td><td>Bind address</td></tr>
+            <tr><td><code>PULSE_SERVER_PORT</code></td><td><code>9696</code></td><td>HTTP port</td></tr>
+            <tr><td><code>PULSE_DATABASE_DSN</code></td><td>—</td><td>Postgres connection string</td></tr>
+            <tr><td><code>PULSE_AUTH_API_KEY</code></td><td>auto-generated</td><td>API key for external access</td></tr>
+            <tr><td><code>PULSE_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code></td></tr>
+            <tr><td><code>PULSE_LOG_FORMAT</code></td><td><code>json</code></td><td><code>json</code> or <code>text</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .sub-hero {
+    position: relative;
+    padding: 100px 0 80px;
+    overflow: hidden;
+  }
+
+  .sub-hero-glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse at center, var(--color-accent-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .sub-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.75em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background-color: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    color: var(--color-accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .app-title {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 1.25rem;
+  }
+
+  .app-tagline {
+    font-size: 1.125rem;
+    color: var(--color-fg-2);
+    line-height: 1.75;
+    max-width: 52ch;
+    margin-bottom: 2rem;
+  }
+
+  .app-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .app-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .meta-pill {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--color-fg-3);
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+  }
+
+  .section {
+    padding: 100px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .section--alt {
+    background-color: var(--color-surface);
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-placeholder {
+    background-color: var(--color-surface-2);
+    border: 1px dashed var(--color-border-2);
+    border-radius: 10px;
+    aspect-ratio: 16/10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .placeholder-label {
+    font-size: 0.75rem;
+    color: var(--color-fg-3);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .detail-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .detail-card h3 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.625rem;
+  }
+
+  .detail-card p {
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+    line-height: 1.65;
+  }
+
+  .detail-card code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .config-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-2);
+  }
+
+  .config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .config-table thead tr {
+    background-color: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .config-table th {
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-fg-3);
+    white-space: nowrap;
+  }
+
+  .config-table td {
+    padding: 0.75rem 1.25rem;
+    color: var(--color-fg-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .config-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .config-table tbody tr:nth-child(even) td {
+    background-color: rgba(255,255,255,0.02);
+  }
+
+  .config-table td code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.85em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .install-note {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+  }
+
+  .install-note code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .text-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .section-lead code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 900px) {
+    .sub-hero { padding: 80px 0 64px; }
+    .feature-grid,
+    .screenshot-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid { grid-template-columns: 1fr; }
+    .section { padding: 64px 0; }
+  }
+
+  @media (max-width: 600px) {
+    .feature-grid,
+    .screenshot-grid,
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>

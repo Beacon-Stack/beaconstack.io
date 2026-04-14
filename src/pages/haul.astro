@@ -1,0 +1,477 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Haul — BitTorrent client · The Beacon Stack"
+  description="Haul is a self-hosted BitTorrent client with accurate ETAs, three-level stall classification, and rename-on-complete using media metadata from Pilot or Prism."
+  active="haul"
+>
+
+  <!-- Sub-hero -->
+  <section class="sub-hero">
+    <div class="sub-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="sub-hero-inner">
+        <span class="app-badge">BitTorrent client</span>
+        <h1 class="app-title"><span class="gradient-text">Haul</span></h1>
+        <p class="app-tagline">
+          A self-hosted BitTorrent client built on anacrolix/torrent. Accurate ETAs,
+          three-level stall classification, rename-on-complete using media metadata from
+          Pilot or Prism, and VPN awareness out of the box.
+        </p>
+        <div class="app-actions">
+          <a href="https://github.com/beacon-stack/haul" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+            View on GitHub &rarr;
+          </a>
+          <a href="#install" class="btn btn--outline">Install</a>
+        </div>
+        <div class="app-meta">
+          <span class="meta-pill">Port :8484</span>
+          <span class="meta-pill">Go 1.25</span>
+          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">anacrolix/torrent</span>
+          <span class="meta-pill">MIT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature grid -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Features</p>
+        <h2 class="section-heading">What Haul does</h2>
+      </div>
+      <div class="feature-grid reveal">
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+          </div>
+          <h3>Accurate ETAs</h3>
+          <p>Rates and time-remaining are computed from a short exponential moving average (5-second time constant) rather than cumulative totals. Numbers track reality instead of flickering. Gaps over 30 seconds reset the tracker to avoid stale extrapolation.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Three-level stall detection</h3>
+          <p>Dead torrents are classified at three levels: <code>no_peers_ever</code> (never saw a peer), <code>activity_lost</code> (was flowing, gone silent), and <code>complete_but_no_activity</code>. Published to <code>/api/v1/stalls</code> for Pilot's stallwatcher to blocklist automatically.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Rename-on-complete</h3>
+          <p>When Pilot or Prism grab a torrent and pass through media metadata, Haul renames the output into <code>Show/Season 02/Show - S02E05.mkv</code> format automatically on completion. No post-processing scripts required.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>VPN awareness</h3>
+          <p>Haul detects whether it's running inside a VPN tunnel and surfaces the external IP in the dashboard — useful for catching VPN drops before they affect your downloads.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <h3>Modern React UI</h3>
+          <p>Live-updated over WebSocket — no polling, no stale progress bars. Categories and tags with per-category save paths. Sequential download mode for streaming before the torrent finishes. First-and-last-piece priority for media players.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-chip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <h3>Webhooks and REST API</h3>
+          <p>Webhooks filtered by event type (added, completed, stalled, speed update). Full REST API at <code>/api/v1/</code> with OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/ws</code>. Per-torrent and global rate limits.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshot placeholders -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Interface</p>
+        <h2 class="section-heading">Screenshots</h2>
+        <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary. Live queue updates over WebSocket.</p>
+      </div>
+      <div class="screenshot-grid reveal">
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Dashboard — active torrents with live ETAs</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">VPN status panel — external IP and tunnel state</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <span class="placeholder-label">Settings — stall timeout, rename, rate limits</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Under the hood -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Technical</p>
+        <h2 class="section-heading">Advanced features</h2>
+      </div>
+      <div class="detail-grid reveal">
+
+        <div class="detail-card">
+          <h3>Rate tracker</h3>
+          <p>anacrolix/torrent exposes cumulative byte counters, not rates. Haul samples those counters on each API request and pushes them through an exponential moving average with a 5-second time constant. The math lives in <code>internal/core/torrent/session.go</code>.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Stall classification</h3>
+          <p>Three-level state machine in <code>internal/core/torrent/stall.go</code>. Level 1: <code>no_peers_ever</code> after the grace period. Level 2: <code>activity_lost</code> past the stall timeout. Level 3: <code>complete_but_no_activity</code>. Anything above level 1 appears on <code>/api/v1/stalls</code>.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Pilot / Prism integration</h3>
+          <p>Pilot and Prism POST to <code>/api/v1/torrents</code> when they grab a release, passing through media metadata so Haul can rename on completion. Haul fires webhooks on completion and publishes stall events to <code>/api/v1/stalls</code>, which Pilot polls to blocklist dead torrents automatically.</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Per-category save paths</h3>
+          <p>Categories support path templates with metadata variables. When a torrent arrives with media metadata from Pilot or Prism, the category's path template is expanded before the download starts. Combine with rename-on-complete for fully automatic library filing.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="section section--alt" id="install">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Install</p>
+        <h2 class="section-heading">Getting started with Haul</h2>
+        <p class="section-lead">Haul is designed to run behind a VPN container. See <a href="https://github.com/beacon-stack/stack" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/stack</a> for the full compose setup with VPN.</p>
+      </div>
+      <div class="terminal reveal" style="max-width:680px;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
+  <span class="syn-flag">--name</span> haul \
+  <span class="syn-flag">-p</span> 8484:8484 \
+  <span class="syn-flag">-v</span> /path/to/config:/config \
+  <span class="syn-flag">-v</span> /path/to/downloads:/downloads \
+  ghcr.io/beacon-stack/haul:latest</pre>
+      </div>
+      <p class="install-note reveal">Open <code>http://localhost:8484</code> — Haul generates an API key on first run. Find it in Settings → System.</p>
+    </div>
+  </section>
+
+  <!-- Config table -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Configuration</p>
+        <h2 class="section-heading">Environment variables</h2>
+      </div>
+      <div class="config-table-wrap reveal">
+        <table class="config-table">
+          <thead>
+            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>HAUL_SERVER_PORT</code></td><td><code>8484</code></td><td>Web UI and API port</td></tr>
+            <tr><td><code>HAUL_TORRENT_LISTEN_PORT</code></td><td><code>6881</code></td><td>Peer-wire listen port</td></tr>
+            <tr><td><code>HAUL_TORRENT_DOWNLOADS_PATH</code></td><td><code>/downloads</code></td><td>Default save path</td></tr>
+            <tr><td><code>HAUL_DATABASE_DSN</code></td><td>—</td><td>Postgres DSN (required)</td></tr>
+            <tr><td><code>HAUL_AUTH_API_KEY</code></td><td>auto</td><td>API key; autogenerated on first run if unset</td></tr>
+            <tr><td><code>HAUL_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL (optional)</td></tr>
+            <tr><td><code>HAUL_TORRENT_RENAME_ON_COMPLETE</code></td><td><code>false</code></td><td>Rename completed downloads using media metadata</td></tr>
+            <tr><td><code>HAUL_TORRENT_PAUSE_ON_COMPLETE</code></td><td><code>false</code></td><td>Pause torrents on finish (for ratio-sensitive trackers)</td></tr>
+            <tr><td><code>HAUL_TORRENT_STALL_TIMEOUT</code></td><td><code>120</code></td><td>Seconds of inactivity before a torrent is classified stalled</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .sub-hero {
+    position: relative;
+    padding: 100px 0 80px;
+    overflow: hidden;
+  }
+
+  .sub-hero-glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse at center, var(--color-accent-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .sub-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.75em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background-color: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    color: var(--color-accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .app-title {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 1.25rem;
+  }
+
+  .app-tagline {
+    font-size: 1.125rem;
+    color: var(--color-fg-2);
+    line-height: 1.75;
+    max-width: 52ch;
+    margin-bottom: 2rem;
+  }
+
+  .app-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .app-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .meta-pill {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--color-fg-3);
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+  }
+
+  .section {
+    padding: 100px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .section--alt {
+    background-color: var(--color-surface);
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .screenshot-placeholder {
+    background-color: var(--color-surface-2);
+    border: 1px dashed var(--color-border-2);
+    border-radius: 10px;
+    aspect-ratio: 16/10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .placeholder-label {
+    font-size: 0.75rem;
+    color: var(--color-fg-3);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .detail-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .detail-card h3 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.625rem;
+  }
+
+  .detail-card p {
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+    line-height: 1.65;
+  }
+
+  .detail-card code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .config-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-2);
+  }
+
+  .config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .config-table thead tr {
+    background-color: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .config-table th {
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-fg-3);
+    white-space: nowrap;
+  }
+
+  .config-table td {
+    padding: 0.75rem 1.25rem;
+    color: var(--color-fg-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .config-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .config-table tbody tr:nth-child(even) td {
+    background-color: rgba(255,255,255,0.02);
+  }
+
+  .config-table td code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.85em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .install-note {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+  }
+
+  .install-note code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .text-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .section-lead code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 900px) {
+    .sub-hero { padding: 80px 0 64px; }
+    .feature-grid,
+    .screenshot-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid { grid-template-columns: 1fr; }
+    .section { padding: 64px 0; }
+  }
+
+  @media (max-width: 600px) {
+    .feature-grid,
+    .screenshot-grid,
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>

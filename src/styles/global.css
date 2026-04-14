@@ -1,0 +1,417 @@
+@import "tailwindcss";
+
+/*
+  Design system — Beacon stack site v3
+
+  TYPE
+  ----
+  Inter at weights 400/500/600/700/800/900.
+  Tight tracking on headings: -0.02em to -0.04em.
+  JetBrains Mono for code only. No serifs anywhere.
+
+  PALETTE
+  -------
+  Accent: Emerald #10b981 — distinctive, rare in dev-tool sites,
+  absolutely not AI-generic. Gradient pairing: emerald → teal #14b8a6 → mint.
+  Background: near-black with a cool blue undertone, slightly cooler than luminarr.
+  #0a0b10 → #12141c → #1a1d28
+
+  SPACING
+  -------
+  8px base grid. Container max-width 1120px. Section padding 100px (64px mobile).
+*/
+
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+
+  /* Dark palette — cooler undertone */
+  --color-bg:          #0a0b10;
+  --color-surface:     #12141c;
+  --color-surface-2:   #1a1d28;
+  --color-surface-3:   #20243200;
+  --color-border:      rgba(255,255,255,0.08);
+  --color-border-2:    rgba(255,255,255,0.15);
+
+  /* Text */
+  --color-fg:          #f0f0f5;
+  --color-fg-2:        #9898b0;
+  --color-fg-3:        #5a5a72;
+
+  /* Accent: Emerald (default — overridden per app page via body[data-app="…"]) */
+  --color-accent:      #10b981;
+  --color-accent-2:    #14b8a6;
+  --color-accent-3:    #a7f3d0;
+  --color-accent-dim:  rgba(16,185,129,0.10);
+  --color-accent-glow: rgba(16,185,129,0.20);
+
+  /* Semantic badge colors — used ONLY for badges, HTTP methods, live indicators */
+  --color-green:  #34d399;
+  --color-amber:  #fbbf24;
+  --color-red:    #f87171;
+  --color-blue:   #3b9eff;
+
+  /* Code syntax */
+  --color-syn-prompt:  #5a5a72;
+  --color-syn-cmd:     #10b981;
+  --color-syn-flag:    #3b9eff;
+  --color-syn-comment: #5a5a72;
+  --color-syn-string:  #34d399;
+  --color-syn-keyword: #14b8a6;
+}
+
+/* ── Resets ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+pre, code {
+  font-family: var(--font-mono);
+}
+
+:not(pre) > code {
+  font-size: 0.85em;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border-2);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  color: var(--color-accent);
+}
+
+/* ── Utilities ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Gradient text — the signature move ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 50%, var(--color-accent-3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Per-app accent overrides — each standalone app gets its own identity ── */
+body[data-app="pulse"] {
+  --color-accent:      #22d3ee;   /* cyan — signal / hub */
+  --color-accent-2:    #38bdf8;   /* sky */
+  --color-accent-3:    #bae6fd;   /* ice */
+  --color-accent-dim:  rgba(34,211,238,0.10);
+  --color-accent-glow: rgba(34,211,238,0.22);
+  --color-syn-cmd:     #22d3ee;
+  --color-syn-keyword: #38bdf8;
+}
+
+body[data-app="pilot"] {
+  --color-accent:      #f59e0b;   /* amber — pilot light */
+  --color-accent-2:    #fb923c;   /* orange */
+  --color-accent-3:    #fde68a;   /* pale gold */
+  --color-accent-dim:  rgba(245,158,11,0.10);
+  --color-accent-glow: rgba(245,158,11,0.22);
+  --color-syn-cmd:     #f59e0b;
+  --color-syn-keyword: #fb923c;
+}
+
+body[data-app="prism"] {
+  --color-accent:      #f43f5e;   /* rose — warm spectrum */
+  --color-accent-2:    #fb7185;   /* pink */
+  --color-accent-3:    #fecdd3;   /* peach */
+  --color-accent-dim:  rgba(244,63,94,0.10);
+  --color-accent-glow: rgba(244,63,94,0.22);
+  --color-syn-cmd:     #f43f5e;
+  --color-syn-keyword: #fb7185;
+}
+
+body[data-app="haul"] {
+  --color-accent:      #3b82f6;   /* blue — workhorse */
+  --color-accent-2:    #60a5fa;   /* sky */
+  --color-accent-3:    #bfdbfe;   /* pale */
+  --color-accent-dim:  rgba(59,130,246,0.10);
+  --color-accent-glow: rgba(59,130,246,0.22);
+  --color-syn-cmd:     #3b82f6;
+  --color-syn-keyword: #60a5fa;
+}
+
+/* ── Container ── */
+.container {
+  max-width: 70rem; /* 1120px */
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── macOS terminal chrome ── */
+.terminal {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  background-color: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-border);
+  gap: 0.375rem;
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.terminal-dot--red    { background-color: #ff5f57; }
+.terminal-dot--yellow { background-color: #ffbd2e; }
+.terminal-dot--green  { background-color: #28c840; }
+
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-fg-3);
+  font-family: var(--font-sans);
+  margin-left: -3.375rem; /* optically center relative to bar */
+}
+
+.terminal-copy-btn {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-fg-3);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.2em 0.6em;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.terminal-copy-btn:hover {
+  color: var(--color-fg-2);
+  border-color: var(--color-border-2);
+}
+
+.terminal-body {
+  padding: 1.25rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre;
+}
+
+.syn-prompt  { color: var(--color-syn-prompt); }
+.syn-cmd     { color: var(--color-syn-cmd); }
+.syn-flag    { color: var(--color-syn-flag); }
+.syn-comment { color: var(--color-syn-comment); }
+.syn-string  { color: var(--color-syn-string); }
+.syn-kw      { color: var(--color-syn-keyword); }
+
+/* ── Scroll-reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Badge pill ── */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3em 0.75em;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border-2);
+  color: var(--color-fg-2);
+}
+
+.badge-pill .live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-green);
+  box-shadow: 0 0 6px var(--color-green);
+  animation: live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn--primary {
+  background-color: var(--color-accent);
+  color: #050c09;
+  border-color: var(--color-accent);
+}
+
+.btn--primary:hover {
+  filter: brightness(0.92);
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--color-fg-2);
+  border-color: var(--color-border-2);
+}
+
+.btn--outline:hover {
+  color: var(--color-fg);
+  border-color: var(--color-fg-3);
+  background-color: var(--color-surface-2);
+}
+
+/* ── Feature card ── */
+.feature-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--color-border-2);
+}
+
+.feature-card .icon-chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--color-accent-dim);
+  border: 1px solid var(--color-accent-glow);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+}
+
+.feature-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-fg);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.feature-card p {
+  font-size: 0.875rem;
+  color: var(--color-fg-2);
+  line-height: 1.6;
+}
+
+/* ── Section headings ── */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+
+.section-heading {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.section-lead {
+  font-size: 1.0625rem;
+  color: var(--color-fg-2);
+  line-height: 1.7;
+  max-width: 56ch;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.25rem;
+  }
+}
