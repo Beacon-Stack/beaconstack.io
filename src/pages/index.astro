@@ -57,7 +57,7 @@ import Base from '../layouts/Base.astro';
             <span class="terminal-dot terminal-dot--red"></span>
             <span class="terminal-dot terminal-dot--yellow"></span>
             <span class="terminal-dot terminal-dot--green"></span>
-            <span class="terminal-title">beacon-stack/stack</span>
+            <span class="terminal-title">beacon-stack/deploy</span>
             <button class="terminal-copy-btn" type="button" aria-label="Copy command">Copy</button>
           </div>
           <div class="terminal-body">
@@ -545,17 +545,17 @@ import Base from '../layouts/Base.astro';
           <h2 class="section-heading">Up in three commands</h2>
           <p class="section-lead">
             The full stack — Postgres, Pulse, Pilot, Prism, Haul, and a VPN container
-            — lives in <code>beacon-stack/stack</code>. Point it at your media
+            — lives in <code>beacon-stack/deploy</code>. Point it at your media
             directories and run.
           </p>
           <a
-            href="https://github.com/beacon-stack/stack"
+            href="https://github.com/beacon-stack/deploy"
             class="btn btn--primary"
             style="margin-top:1.5rem;"
             target="_blank"
             rel="noopener noreferrer"
           >
-            beacon-stack/stack &rarr;
+            beacon-stack/deploy &rarr;
           </a>
         </div>
 
@@ -569,7 +569,7 @@ import Base from '../layouts/Base.astro';
               <button class="terminal-copy-btn" type="button" aria-label="Copy commands">Copy</button>
             </div>
             <pre class="terminal-body"><span class="syn-comment"># Clone and configure</span>
-<span class="syn-prompt">$ </span><span class="syn-cmd">git clone</span> https://github.com/beacon-stack/stack
+<span class="syn-prompt">$ </span><span class="syn-cmd">git clone</span> https://github.com/beacon-stack/deploy
 <span class="syn-prompt">$ </span><span class="syn-cmd">cp</span> .env.example .env
 <span class="syn-comment"># Set MEDIA_DIR, TV_DIR, MOVIES_DIR in .env</span>
 
