@@ -17,8 +17,9 @@ import Base from '../layouts/Base.astro';
         <h1 class="app-title"><span class="gradient-text">Pilot</span></h1>
         <p class="app-tagline">
           A self-hosted TV series manager with a React web UI and a REST API. Tracks
-          your TV library via TMDB, polls indexers for new episodes, grabs through your
-          download client, and files completed downloads into season folders.
+          your TV library via TMDB, polls indexers (the search APIs that catalog
+          releases) for new episodes, hands grabs to your download client, and files
+          completed downloads into season folders.
         </p>
         <div class="app-actions">
           <a href="https://github.com/beacon-stack/pilot" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
@@ -58,7 +59,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <h3>Release handling</h3>
-          <p>Quality profiles with resolution, source, codec, and HDR dimensions. Custom formats with regex matching and weighted scoring. Title-matched release filter — releases for other shows with overlapping title words don't get grabbed.</p>
+          <p>Quality profiles — ranked lists of acceptable resolutions, sources, codecs, and HDR variants — drive the grab decision. Custom formats with regex matching and weighted scoring layer on top. A title-match filter rejects releases whose parsed show name doesn't match the requested series, so a "The Office" search never grabs an "Office Space" pack with overlapping words.</p>
         </div>
 
         <div class="feature-card">
@@ -82,7 +83,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </div>
           <h3>Integrations</h3>
-          <p>Indexers: Newznab, Torznab, Pulse-managed. Download clients: Haul, qBittorrent, Deluge, Transmission, SABnzbd, NZBGet. Media servers: Plex, Jellyfin, Emby. Notifications: Discord, Slack, Telegram, Pushover, Gotify, ntfy, email, webhook, command.</p>
+          <p>Indexers via Newznab and Torznab (the two standard search APIs the *arr ecosystem speaks), either configured locally or synced from Pulse. Download clients: Haul, qBittorrent, Deluge, Transmission, SABnzbd, NZBGet. Media servers: Plex, Jellyfin, Emby. Notifications: Discord, Slack, Telegram, Pushover, Gotify, ntfy, email, webhook, custom command.</p>
         </div>
 
         <div class="feature-card">
@@ -90,7 +91,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
           </div>
           <h3>Command palette</h3>
-          <p>Cmd/Ctrl+K command palette with fuzzy search for pages, series, and actions. 20 dark and light theme presets shared across the Beacon services. Live queue updates over WebSocket. OpenAPI docs at <code>/api/docs</code>.</p>
+          <p>Cmd/Ctrl+K command palette with fuzzy search for pages, series, and actions. Eighteen theme presets (thirteen dark, five light) shared across every Beacon service. Live queue updates over WebSocket. OpenAPI docs at <code>/api/docs</code>.</p>
         </div>
 
       </div>
@@ -140,7 +141,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Interactive search ranking</h3>
-          <p>Releases sort by Quality &rarr; Episode Count &rarr; age-aware log10 Seed Weight &rarr; Age. The Episode Count tier lifts season packs above individual episodes within the same quality tier (matching Sonarr's <code>DownloadDecisionComparer</code>). The Seed Weight tier resists the 800-seeder, five-year-old release that has no actual peers.</p>
+          <p>Releases sort by Quality &rarr; Episode Count &rarr; age-aware log10 Seed Weight &rarr; Age. The Episode Count tier lifts season packs above individual episodes within the same quality tier, the way Sonarr's release comparer does. The Seed Weight tier — log<sub>10</sub> of the seed count, with an age cap on torrents older than a year — is what stops the 847-seeder, five-year-old release with zero actual peers from winning the sort.</p>
         </div>
 
         <div class="detail-card">

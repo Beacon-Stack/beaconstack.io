@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 
 <Base
   title="Haul — BitTorrent client · The Beacon Stack"
-  description="Haul is a self-hosted BitTorrent client with accurate ETAs, three-level stall classification, and rename-on-complete using media metadata from Pilot or Prism."
+  description="Haul is a self-hosted BitTorrent client with accurate ETAs, four-level stall classification, and rename-on-complete using media metadata from Pilot or Prism."
   active="haul"
 >
 
@@ -16,10 +16,10 @@ import Base from '../layouts/Base.astro';
         <span class="app-badge">BitTorrent client</span>
         <h1 class="app-title"><span class="gradient-text">Haul</span></h1>
         <p class="app-tagline">
-          A self-hosted BitTorrent client built on anacrolix/torrent. Accurate ETAs,
-          multi-level stall detection that catches the dead torrents qBittorrent
-          treats as healthy, rename-on-complete using media metadata from Pilot or
-          Prism, and VPN awareness out of the box.
+          A self-hosted BitTorrent client built on anacrolix/torrent. Accurate ETAs
+          from a short exponential moving average, four-level stall detection that
+          flags dead torrents most clients call healthy, rename-on-complete using
+          media metadata from Pilot or Prism, and VPN awareness out of the box.
         </p>
         <div class="app-actions">
           <a href="https://github.com/beacon-stack/haul" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
