@@ -59,7 +59,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <h3>Indexer management</h3>
-          <p>Add a Torznab or Newznab endpoint once. Pulse auto-assigns it to every service whose capabilities match the indexer's catalog category — Movies-tagged indexers reach Prism, TV-tagged reach Pilot. Built-in catalog with pre-filled schemas, one-click add, and a tester that verifies connectivity before saving.</p>
+          <p>Indexers — the search APIs that catalog torrent and Usenet releases — usually mean a Torznab or Newznab endpoint. Add one to Pulse and it's auto-assigned to every service whose capabilities match the indexer's catalog category: Movies-tagged indexers reach Prism, TV-tagged reach Pilot. A built-in catalog with pre-filled setting schemas, one-click add, and a tester that verifies connectivity before saving make first-time setup quick.</p>
         </div>
 
         <div class="feature-card">
@@ -67,7 +67,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
           <h3>Quality profile management</h3>
-          <p>Quality profiles live in Pulse. Pilot and Prism mirror them locally with a <code>managed_by_pulse</code> flag — the synced copy is read-only, while local-only profiles still work for per-app overrides. Edit a 1080p cutoff once in Pulse and both services update on the next sync.</p>
+          <p>A quality profile is a ranked list of acceptable resolutions, sources, and codecs plus an upgrade cutoff — what the manager will and won't grab, and when it stops looking for something better. Profiles live in Pulse and mirror to Pilot and Prism with a <code>managed_by_pulse</code> flag: synced copies are read-only, local-only profiles still work for per-app overrides. Edit a 1080p cutoff once in Pulse and both services update on the next sync.</p>
         </div>
 
         <div class="feature-card">

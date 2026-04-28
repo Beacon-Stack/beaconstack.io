@@ -103,8 +103,9 @@ import Base from '../layouts/Base.astro';
         <h2 class="section-heading">Four apps, one config layer</h2>
         <p class="section-lead">
           Pilot, Prism, and Haul each run independently with local configuration.
-          Pulse is the hub that lets all three share one indexer list, one set of
-          quality profiles, one download client (Haul registers itself), and a
+          Pulse is the hub that lets all three share one indexer list (the search
+          APIs that catalog releases), one set of quality profiles (ranked rules
+          for what to grab), one download client — Haul registers itself — and a
           common media-handling settings namespace.
         </p>
       </div>
@@ -175,7 +176,8 @@ import Base from '../layouts/Base.astro';
           </div>
           <p class="app-desc">
             Edition-aware release scoring, full release decision explainability, and a
-            native Radarr v3 API so Overseerr and Jellyseerr connect without modification.
+            native Radarr v3 API so anything that already speaks to Radarr — request
+            tools, dashboards, mobile clients — points at Prism with no changes.
             Import from a running Radarr instance in one pass.
           </p>
           <span class="app-port">:8282</span>
@@ -290,7 +292,7 @@ import Base from '../layouts/Base.astro';
                 </animateMotion>
               </circle>
 
-              <!-- Stall events Haul → Pulse -->
+              <!-- Haul registers with Pulse — auto-creates the download-client entry -->
               <circle class="dot-stall" r="3.5">
                 <animateMotion dur="4.0s" repeatCount="indefinite" begin="1.2s">
                   <mpath href="#p-haul-pulse"/>
@@ -539,6 +541,122 @@ import Base from '../layouts/Base.astro';
           </p>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       COMPOSE FILE LAYOUT
+  ═══════════════════════════════════════════════ -->
+  <section class="compose-section" id="compose-files">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-label">Deployment</p>
+        <h2 class="section-heading">How the compose files fit together</h2>
+        <p class="section-lead">
+          The <a href="https://github.com/beacon-stack/deploy" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/deploy</a>
+          repo ships several Compose files because the stack tries to stay simple by
+          default and flexible when you need it to be. Here's how they layer.
+        </p>
+      </div>
+
+      <div class="compose-grid reveal">
+
+        <div class="compose-card">
+          <div class="compose-card-head">
+            <span class="compose-tag compose-tag--always">Always</span>
+            <code class="compose-file">docker-compose.yml</code>
+          </div>
+          <p class="compose-desc">
+            The base file. Defines Postgres, Pulse, Pilot, Prism, Haul, and the two
+            init sidecars. <code>docker compose up -d</code> loads this without you
+            having to ask. For most users this is the only file that ever runs.
+          </p>
+        </div>
+
+        <div class="compose-card">
+          <div class="compose-card-head">
+            <span class="compose-tag compose-tag--auto">Auto-loaded if present</span>
+            <code class="compose-file">docker-compose.override.yml</code>
+          </div>
+          <p class="compose-desc">
+            Compose has a built-in convention: if a file named <code>docker-compose.override.yml</code>
+            sits next to the base file, it merges automatically on top of it. We use
+            that for your personal tweaks — extra bind mounts, healthcheck timing for
+            slow hardware, pinning a specific image tag. The file is gitignored, and
+            <code>docker-compose.override.example.yml</code> in the repo shows the
+            patterns you can copy.
+          </p>
+        </div>
+
+        <div class="compose-card">
+          <div class="compose-card-head">
+            <span class="compose-tag compose-tag--optin">Opt-in</span>
+            <code class="compose-file">docker-compose.vpn.yml</code>
+          </div>
+          <p class="compose-desc">
+            Routes Haul through a Gluetun VPN container. Loaded by setting
+            <code>COMPOSE_FILE=docker-compose.yml:docker-compose.vpn.yml</code> in your
+            <code>.env</code> (so plain <code>docker compose up -d</code> picks it up
+            forever after) — or by passing <code>-f docker-compose.yml -f docker-compose.vpn.yml</code>
+            on every command if you'd rather be explicit. Requires Docker Compose v2.20+
+            for the <code>!reset</code> directive that detaches Haul from the bridge
+            network and rehomes it into Gluetun's namespace.
+          </p>
+        </div>
+
+        <div class="compose-card">
+          <div class="compose-card-head">
+            <span class="compose-tag compose-tag--optin">Opt-in</span>
+            <code class="compose-file">COMPOSE_PROFILES</code>
+          </div>
+          <p class="compose-desc">
+            Profiles enable optional containers without a separate Compose file.
+            <code>COMPOSE_PROFILES=flaresolverr</code> in your <code>.env</code> spins
+            up a FlareSolverr container alongside the rest of the stack for indexers
+            behind Cloudflare bot protection. (You also need to uncomment the
+            <code>PULSE_FLARESOLVERR_URL</code> line in <code>docker-compose.yml</code>
+            so Pulse actually routes its scrapes through it.) Most users never need this.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="compose-stacks reveal">
+        <p class="compose-stacks-label">How they layer</p>
+        <ul class="compose-stack-list">
+          <li>
+            <span class="compose-stack-label">Default</span>
+            <code>docker-compose.yml</code>
+            <span class="compose-stack-desc">— the whole stack, no VPN.</span>
+          </li>
+          <li>
+            <span class="compose-stack-label">Personalized</span>
+            <code>docker-compose.yml</code> <span class="compose-stack-plus">+</span> <code>docker-compose.override.yml</code>
+            <span class="compose-stack-desc">— your local tweaks merged on top automatically.</span>
+          </li>
+          <li>
+            <span class="compose-stack-label">VPN'd</span>
+            <code>docker-compose.yml</code> <span class="compose-stack-plus">+</span> <code>docker-compose.vpn.yml</code>
+            <span class="compose-stack-desc">— Haul tunnels through Gluetun.</span>
+          </li>
+          <li>
+            <span class="compose-stack-label">Both</span>
+            <code>docker-compose.yml</code> <span class="compose-stack-plus">+</span> <code>docker-compose.override.yml</code> <span class="compose-stack-plus">+</span> <code>docker-compose.vpn.yml</code>
+            <span class="compose-stack-desc">— personalized and VPN'd.</span>
+          </li>
+        </ul>
+        <p class="compose-stacks-foot">
+          Compose merges files in the order it loads them; later files win on conflicts.
+          By default, <code>docker compose up</code> auto-detects two files: the base and
+          <code>docker-compose.override.yml</code> (if present), with the override applied
+          last. The moment you set <code>COMPOSE_FILE</code> in <code>.env</code>, that
+          auto-detection turns off and you become responsible for the full chain — so if
+          you want both your overrides and the VPN, write
+          <code>COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.vpn.yml</code>.
+          Always keep <code>docker-compose.vpn.yml</code> last; its <code>!reset</code>
+          directive only applies if it merges after the base's network config for Haul.
+        </p>
       </div>
     </div>
   </section>
@@ -1172,6 +1290,160 @@ import Base from '../layouts/Base.astro';
     margin-top: 3rem;
   }
 
+  /* ── Compose section ────────────────────────────────── */
+  .compose-section {
+    padding: 100px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .compose-section .text-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .compose-section .section-lead code,
+  .compose-card code,
+  .compose-stack-list code,
+  .compose-stacks-foot code {
+    color: var(--color-accent);
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .compose-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .compose-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .compose-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.875rem;
+    flex-wrap: wrap;
+  }
+
+  .compose-tag {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.2em 0.55em;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .compose-tag--always {
+    color: var(--color-accent);
+    background-color: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow);
+  }
+
+  .compose-tag--auto {
+    color: #3b9eff;
+    background-color: rgba(59,158,255,0.12);
+    border: 1px solid rgba(59,158,255,0.3);
+  }
+
+  .compose-tag--optin {
+    color: var(--color-fg-2);
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-border-2);
+  }
+
+  .compose-file {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-fg);
+    background: var(--color-surface-2) !important;
+    border: 1px solid var(--color-border-2) !important;
+    padding: 0.2em 0.5em !important;
+  }
+
+  .compose-desc {
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+    line-height: 1.65;
+  }
+
+  .compose-stacks {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-2);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+  }
+
+  .compose-stacks-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-fg-3);
+    margin-bottom: 1rem;
+  }
+
+  .compose-stack-list {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-2);
+  }
+
+  .compose-stack-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    line-height: 1.6;
+  }
+
+  .compose-stack-label {
+    display: inline-block;
+    min-width: 6.5rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-3);
+  }
+
+  .compose-stack-plus {
+    color: var(--color-fg-3);
+    font-weight: 600;
+  }
+
+  .compose-stack-desc {
+    color: var(--color-fg-3);
+    font-size: 0.8125rem;
+  }
+
+  .compose-stacks-foot {
+    font-size: 0.8125rem;
+    color: var(--color-fg-3);
+    line-height: 1.65;
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
   /* ── Start section ──────────────────────────────────── */
   .start-section {
     padding: 100px 0;
@@ -1215,8 +1487,17 @@ import Base from '../layouts/Base.astro';
     .register-section,
     .ecosystem-section,
     .why-section,
+    .compose-section,
     .start-section {
       padding: 64px 0;
+    }
+
+    .compose-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .compose-stack-label {
+      min-width: 0;
     }
 
     .eco-line {

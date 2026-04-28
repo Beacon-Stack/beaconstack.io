@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 
 <Base
   title="Prism — movie collection manager · The Beacon Stack"
-  description="Prism is a self-hosted movie collection manager with a native Radarr v3 API, edition-aware scoring, and full release decision explainability."
+  description="Prism is a self-hosted movie collection manager with a native Radarr v3 API, edition-aware release scoring, and full release decision explainability."
   active="prism"
 >
 
@@ -17,8 +17,9 @@ import Base from '../layouts/Base.astro';
         <h1 class="app-title"><span class="gradient-text">Prism</span></h1>
         <p class="app-tagline">
           A self-hosted movie collection manager with a React web UI and a REST API.
-          Edition-aware release scoring, full release decision explainability, and a native
-          Radarr v3 API so Overseerr and Jellyseerr connect without modification.
+          Edition-aware release scoring, full release decision explainability, and a
+          native Radarr v3 API at <code>/api/v3/</code> so anything that already
+          speaks to Radarr can point at Prism with no changes.
         </p>
         <div class="app-actions">
           <a href="https://github.com/beacon-stack/prism" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
@@ -75,7 +76,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </div>
           <h3>Radarr v3 API compatibility</h3>
-          <p>Prism exposes a Radarr v3 compatible API at <code>/api/v3/</code>. Point Overseerr, Jellyseerr, Homepage, Home Assistant, LunaSea, or any other tool with a Radarr integration at Prism — it connects without modification.</p>
+          <p>Prism implements the Radarr v3 API surface at <code>/api/v3/</code> — the endpoints request tools and dashboards expect from Radarr (movies, queue, quality profiles, root folders, tags, system status, command). Anything that points at Radarr today should point at Prism with no changes; we accept both <code>X-Api-Key</code> headers and <code>?apikey=</code> query params for tools that prefer the latter.</p>
         </div>
 
         <div class="feature-card">
@@ -131,7 +132,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Radarr v3 adapter</h3>
-          <p>Lives in <code>internal/api/v3/</code>. A compatibility layer over Prism's native API that maps Radarr's endpoint shapes onto Prism's internal types. Known to work with Overseerr, Jellyseerr, Homepage, and Home Assistant.</p>
+          <p>Lives in <code>internal/api/v3/</code>. A compatibility layer over Prism's native API that maps Radarr's endpoint shapes onto Prism's internal types. The adapter implements the endpoints typical Radarr-aware tools call — request services like Overseerr and Jellyseerr, dashboards like Homepage, and home-automation integrations like Home Assistant. We add coverage as users hit gaps; if your tool needs an endpoint that isn't there, file an issue.</p>
         </div>
 
         <div class="detail-card">
