@@ -18,8 +18,8 @@ import Base from '../layouts/Base.astro';
         <p class="app-tagline">
           Service registry and shared configuration layer. Beacon apps register with
           it out of the box, and any Go service can join through the client SDK at
-          <code>pkg/sdk</code> — tap into shared indexers, quality profiles, and
-          settings with a single client instance.
+          <code>pkg/sdk</code> — tap into shared indexers, quality profiles, download
+          clients, and media-handling settings with a single client instance.
         </p>
         <div class="app-actions">
           <a href="https://github.com/beacon-stack/pulse" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
@@ -59,7 +59,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <h3>Indexer management</h3>
-          <p>Add a Torznab endpoint once. Tag it <code>movies</code> and Prism picks it up. Tag it <code>tv</code> and Pilot gets it too. Built-in catalog with pre-filled schemas, one-click add, and a tester that verifies connectivity before saving.</p>
+          <p>Add a Torznab or Newznab endpoint once. Pulse auto-assigns it to every service whose capabilities match the indexer's catalog category — Movies-tagged indexers reach Prism, TV-tagged reach Pilot. Built-in catalog with pre-filled schemas, one-click add, and a tester that verifies connectivity before saving.</p>
         </div>
 
         <div class="feature-card">
@@ -67,15 +67,15 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
           <h3>Quality profile management</h3>
-          <p>Quality profiles live in Pulse. Subscribing services mirror them with a <code>managed_by_pulse</code> flag. Edit a 1080p cutoff once in Pulse — both Pilot and Prism update without a config edit in either service.</p>
+          <p>Quality profiles live in Pulse. Pilot and Prism mirror them locally with a <code>managed_by_pulse</code> flag — the synced copy is read-only, while local-only profiles still work for per-app overrides. Edit a 1080p cutoff once in Pulse and both services update on the next sync.</p>
         </div>
 
         <div class="feature-card">
           <div class="icon-chip">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <h3>Shared settings store</h3>
-          <p>A typed key-value store for cross-service settings: <code>media.library_root</code>, <code>rename.colon_replacement</code>, <code>download.preferred_protocol</code>. Each service reads and subscribes to its relevant namespace.</p>
+          <h3>Shared download clients</h3>
+          <p>When Haul registers as a download client, Pulse auto-creates the entry and shares its address and API key with Pilot and Prism through the registration handshake. No manual key-copy step, no "add download client in each app's settings."</p>
         </div>
 
         <div class="feature-card">
@@ -83,7 +83,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <h3>WebSocket event stream</h3>
-          <p>Services subscribe to live updates at <code>/ws</code>. When shared state changes, every subscriber is notified immediately — no polling required. The SDK callback fires synchronously on each event.</p>
+          <p>Pulse pushes live updates over <code>/ws</code> and fires per-service sync hooks the moment shared state changes — indexer added, quality profile edited, settings updated. Consumers don't have to wait for the next 30-second poll.</p>
         </div>
 
         <div class="feature-card">
@@ -91,7 +91,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
           </div>
           <h3>Go client SDK</h3>
-          <p>A drop-in SDK at <code>pkg/sdk</code> for any Go service. Register, discover peers, read and subscribe to shared config, and pull assigned indexers — all with one client instance and WebSocket-backed callbacks.</p>
+          <p>A drop-in SDK at <code>pkg/sdk</code> for any Go service. Register with retry backoff, auto-heartbeat on a 30-second tick, discover peers by type or capability, pull assigned indexers, and read shared config — all with one client instance.</p>
         </div>
 
       </div>
@@ -135,7 +135,7 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="detail-card">
-          <h3>SDK — register and subscribe</h3>
+          <h3>SDK — register and pull</h3>
           <div class="terminal" style="margin-top:0.75rem;">
             <div class="terminal-bar">
               <span class="terminal-dot terminal-dot--red"></span>
@@ -143,14 +143,15 @@ import Base from '../layouts/Base.astro';
               <span class="terminal-dot terminal-dot--green"></span>
               <span class="terminal-title">pkg/sdk</span>
             </div>
-            <pre class="terminal-body" style="font-size:0.775rem;"><span class="syn-kw">client</span>, _ := sdk.New(sdk.Config&#123;
-    PulseURL: <span class="syn-string">"http://pulse:9696"</span>,
+            <pre class="terminal-body" style="font-size:0.775rem;"><span class="syn-kw">client</span>, _ := sdk.NewWithRetry(sdk.Config&#123;
+    PulseURL:    <span class="syn-string">"http://pulse:9696"</span>,
     ServiceName: <span class="syn-string">"pilot"</span>,
-    Capabilities: []string&#123;<span class="syn-string">"supports_torrent"</span>&#125;,
+    ServiceType: <span class="syn-string">"media-manager"</span>,
+    APIURL:      <span class="syn-string">"http://pilot:8383"</span>,
+    Capabilities: []string&#123;<span class="syn-string">"content:tv"</span>, <span class="syn-string">"supports_torrent"</span>&#125;,
 &#125;)
-client.Subscribe(ctx, <span class="syn-string">"media"</span>, func(ns, key, val string) &#123;
-    <span class="syn-comment">// fires on WebSocket events</span>
-&#125;)</pre>
+indexers, _ := client.MyIndexers(ctx)
+clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-client"</span>)</pre>
           </div>
         </div>
 
@@ -214,7 +215,12 @@ client.Subscribe(ctx, <span class="syn-string">"media"</span>, func(ns, key, val
             <tr><td><code>PULSE_SERVER_HOST</code></td><td><code>0.0.0.0</code></td><td>Bind address</td></tr>
             <tr><td><code>PULSE_SERVER_PORT</code></td><td><code>9696</code></td><td>HTTP port</td></tr>
             <tr><td><code>PULSE_DATABASE_DSN</code></td><td>—</td><td>Postgres connection string</td></tr>
-            <tr><td><code>PULSE_AUTH_API_KEY</code></td><td>auto-generated</td><td>API key for external access</td></tr>
+            <tr><td><code>PULSE_DATABASE_PASSWORD_FILE</code></td><td>—</td><td>Path to a Docker secret holding the DB password (overrides the password in the DSN)</td></tr>
+            <tr><td><code>PULSE_AUTH_API_KEY</code></td><td>auto on first run</td><td>API key. Persisted to the DB so it survives restarts; not surfaced in the UI</td></tr>
+            <tr><td><code>PULSE_AUTH_API_KEY_FILE</code></td><td>—</td><td>Path to a Docker secret holding the API key</td></tr>
+            <tr><td><code>PULSE_FLARESOLVERR_URL</code></td><td>—</td><td>FlareSolverr endpoint for Cloudflare-protected indexers</td></tr>
+            <tr><td><code>PULSE_DASHBOARD_DOCKER_SOCKET</code></td><td>—</td><td>Path to the Docker socket. Enables the container resource panels (off by default; needs the volume mount too)</td></tr>
+            <tr><td><code>PULSE_DASHBOARD_GLUETUN_URL</code></td><td>—</td><td>Gluetun control-server URL. Auto-set when the VPN overlay is active</td></tr>
             <tr><td><code>PULSE_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code></td></tr>
             <tr><td><code>PULSE_LOG_FORMAT</code></td><td><code>json</code></td><td><code>json</code> or <code>text</code></td></tr>
           </tbody>
