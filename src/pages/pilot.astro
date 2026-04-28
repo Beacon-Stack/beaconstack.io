@@ -192,14 +192,12 @@ import Base from '../layouts/Base.astro';
             <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>PILOT_SERVER_PORT</code></td><td><code>8383</code></td><td>Web UI and API port</td></tr>
-            <tr><td><code>PILOT_DATABASE_DSN</code></td><td>—</td><td>Postgres DSN (required)</td></tr>
-            <tr><td><code>PILOT_DATABASE_PASSWORD_FILE</code></td><td>—</td><td>Path to a Docker secret holding the DB password</td></tr>
-            <tr><td><code>PILOT_AUTH_API_KEY</code></td><td>auto on first run</td><td>API key. Surfaced in Settings &rarr; App Settings for use by Homepage, Home Assistant, etc.</td></tr>
-            <tr><td><code>PILOT_AUTH_API_KEY_FILE</code></td><td>—</td><td>Path to a Docker secret holding the API key</td></tr>
-            <tr><td><code>PILOT_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL. When set, Pilot registers with Pulse on startup and syncs indexers, quality profiles, download clients, and shared media-handling settings every 30s</td></tr>
-            <tr><td><code>PILOT_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code></td></tr>
-            <tr><td><code>PILOT_LOG_FORMAT</code></td><td><code>json</code></td><td><code>json</code> or <code>text</code></td></tr>
+            <tr><td><code>TV_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to your TV library. Bound into Pilot at <code>/tv</code>. Must be on the same filesystem as <code>DOWNLOADS_PATH</code> for hardlink imports.</td></tr>
+            <tr><td><code>DOWNLOADS_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to completed downloads. Shared across Pilot, Prism, and Haul.</td></tr>
+            <tr><td><code>PILOT_PORT</code></td><td><code>8383</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 8383 is taken.</td></tr>
+            <tr><td><code>PILOT_CONFIG_PATH</code></td><td><code>./config/pilot</code></td><td>Where Pilot's <code>config.yaml</code> and cached state live.</td></tr>
+            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Shared across all Beacon services. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>Shared IANA timezone for log timestamps and scheduled tasks.</td></tr>
           </tbody>
         </table>
       </div>

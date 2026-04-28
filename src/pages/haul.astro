@@ -194,17 +194,13 @@ import Base from '../layouts/Base.astro';
             <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>HAUL_SERVER_PORT</code></td><td><code>8484</code></td><td>Web UI and API port</td></tr>
-            <tr><td><code>HAUL_TORRENT_LISTEN_PORT</code></td><td><code>6881</code></td><td>Peer-wire listen port</td></tr>
-            <tr><td><code>HAUL_TORRENT_DOWNLOAD_DIR</code></td><td><code>/downloads</code></td><td>Default save path</td></tr>
-            <tr><td><code>HAUL_DATABASE_DSN</code></td><td>—</td><td>Postgres DSN (required)</td></tr>
-            <tr><td><code>HAUL_DATABASE_PASSWORD_FILE</code></td><td>—</td><td>Path to a Docker secret holding the DB password</td></tr>
-            <tr><td><code>HAUL_AUTH_API_KEY</code></td><td>auto on first run</td><td>API key. Persisted to <code>config.yaml</code>; not surfaced in the UI</td></tr>
-            <tr><td><code>HAUL_AUTH_API_KEY_FILE</code></td><td>—</td><td>Path to a Docker secret holding the API key</td></tr>
-            <tr><td><code>HAUL_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL. When set, Haul registers itself as a download client and hands its API key to Pulse so Pilot/Prism wire up automatically</td></tr>
-            <tr><td><code>HAUL_TORRENT_RENAME_ON_COMPLETE</code></td><td><code>false</code></td><td>Rename completed downloads using media metadata</td></tr>
-            <tr><td><code>HAUL_TORRENT_PAUSE_ON_COMPLETE</code></td><td><code>false</code></td><td>Pause torrents on finish (for ratio-sensitive trackers)</td></tr>
-            <tr><td><code>HAUL_TORRENT_STALL_TIMEOUT</code></td><td><code>120</code></td><td>Seconds of inactivity before a torrent is classified stalled</td></tr>
+            <tr><td><code>DOWNLOADS_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to active downloads. Bound into Haul at <code>/downloads</code> and shared across Pilot, Prism, and Haul.</td></tr>
+            <tr><td><code>HAUL_PORT</code></td><td><code>8484</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 8484 is taken.</td></tr>
+            <tr><td><code>HAUL_TORRENT_PORT</code></td><td><code>6881</code></td><td>Host port for peer-wire (TCP and UDP). Forward this through your router for incoming peers.</td></tr>
+            <tr><td><code>HAUL_CONFIG_PATH</code></td><td><code>./config/haul</code></td><td>Where Haul's <code>config.yaml</code> and cached state live.</td></tr>
+            <tr><td><code>VPN_USERNAME</code> / <code>VPN_PASSWORD</code></td><td>—</td><td>Required when the VPN overlay is loaded (<code>docker-compose.vpn.yml</code>). Haul tunnels through Gluetun.</td></tr>
+            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Shared across all Beacon services. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>Shared IANA timezone for log timestamps and scheduled tasks.</td></tr>
           </tbody>
         </table>
       </div>
