@@ -196,8 +196,8 @@ import Base from '../layouts/Base.astro';
             <tr><td><code>DOWNLOADS_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to completed downloads. Shared across Pilot, Prism, and Haul.</td></tr>
             <tr><td><code>PILOT_PORT</code></td><td><code>8383</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 8383 is taken.</td></tr>
             <tr><td><code>PILOT_CONFIG_PATH</code></td><td><code>./config/pilot</code></td><td>Where Pilot's <code>config.yaml</code> and cached state live.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Shared across all Beacon services. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>Shared IANA timezone for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
           </tbody>
         </table>
       </div>

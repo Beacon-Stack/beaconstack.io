@@ -217,8 +217,8 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
             <tr><td><code>PULSE_FLARESOLVERR_URL</code></td><td>—</td><td>FlareSolverr endpoint for Cloudflare-protected indexers. <strong>Opt-in</strong>: uncomment in <code>docker-compose.yml</code> and set <code>COMPOSE_PROFILES=flaresolverr</code>.</td></tr>
             <tr><td><code>PULSE_DASHBOARD_DOCKER_SOCKET</code></td><td>—</td><td>Path to the Docker socket. Enables container resource panels in the dashboard. <strong>Opt-in</strong>: uncomment both this var and the <code>/var/run/docker.sock</code> mount in <code>docker-compose.yml</code>.</td></tr>
             <tr><td><code>PULSE_DASHBOARD_GLUETUN_URL</code></td><td>—</td><td>Gluetun control-server URL for the dashboard's VPN panel. Auto-set to <code>http://vpn:8000</code> when the VPN overlay is active.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Shared across all Beacon services. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>Shared IANA timezone for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
           </tbody>
         </table>
       </div>

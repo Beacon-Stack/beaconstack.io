@@ -199,8 +199,8 @@ import Base from '../layouts/Base.astro';
             <tr><td><code>HAUL_TORRENT_PORT</code></td><td><code>6881</code></td><td>Host port for peer-wire (TCP and UDP). Forward this through your router for incoming peers.</td></tr>
             <tr><td><code>HAUL_CONFIG_PATH</code></td><td><code>./config/haul</code></td><td>Where Haul's <code>config.yaml</code> and cached state live.</td></tr>
             <tr><td><code>VPN_USERNAME</code> / <code>VPN_PASSWORD</code></td><td>—</td><td>Required when the VPN overlay is loaded (<code>docker-compose.vpn.yml</code>). Haul tunnels through Gluetun.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Shared across all Beacon services. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>Shared IANA timezone for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
           </tbody>
         </table>
       </div>
