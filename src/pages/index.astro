@@ -31,8 +31,8 @@ import Base from '../layouts/Base.astro';
         <!-- Subtitle -->
         <p class="hero-sub">
           TV, movies, and BitTorrent — each app works standalone, and all
-          three share indexers, quality profiles, and settings through Pulse
-          when you want them to. One&nbsp;<code>docker&nbsp;compose&nbsp;up</code>
+          three share indexers, quality profiles, download clients, and
+          media-handling settings through Pulse when you want them to. One&nbsp;<code>docker&nbsp;compose&nbsp;up</code>
           for the whole stack.
         </p>
 
@@ -103,8 +103,9 @@ import Base from '../layouts/Base.astro';
         <h2 class="section-heading">Four apps, one config layer</h2>
         <p class="section-lead">
           Pilot, Prism, and Haul each run independently with local configuration.
-          Pulse is the optional hub that makes all three share a single indexer list,
-          one set of quality profiles, and a common settings namespace.
+          Pulse is the hub that lets all three share one indexer list, one set of
+          quality profiles, one download client (Haul registers itself), and a
+          common media-handling settings namespace.
         </p>
       </div>
 
@@ -126,8 +127,9 @@ import Base from '../layouts/Base.astro';
           <p class="app-desc">
             Service registry and shared configuration layer. Beacon apps register here,
             but so can anything else — the Go SDK at <code>pkg/sdk</code> lets any
-            service tap into shared indexers, profiles, and settings. Optional for a
-            single install, essential the moment you run two.
+            service tap into shared indexers, quality profiles, download clients, and
+            media-handling settings. Optional for a single install, essential the
+            moment you run two.
           </p>
           <span class="app-port">:9696</span>
           <span class="app-link">Deep dive &rarr;</span>
@@ -150,7 +152,7 @@ import Base from '../layouts/Base.astro';
           <p class="app-desc">
             Tracks a TV library via TMDB, polls indexers for new episodes, grabs through
             your download client, and files completed downloads into season folders.
-            Dead-torrent detection and one-click Sonarr import included.
+            Dead-torrent detection with auto-blocklist, and one-pass Sonarr import.
           </p>
           <span class="app-port">:8383</span>
           <span class="app-link">Deep dive &rarr;</span>
@@ -197,8 +199,9 @@ import Base from '../layouts/Base.astro';
           </div>
           <p class="app-desc">
             Built on anacrolix/torrent. Accurate ETAs from exponential moving averages,
-            three-level stall classification, and rename-on-complete using media metadata
-            passed by Pilot or Prism. VPN-aware dashboard.
+            multi-level stall detection that catches dead torrents the rest of the
+            stack misses, and rename-on-complete using media metadata passed by
+            Pilot or Prism. VPN-aware dashboard.
           </p>
           <span class="app-port">:8484</span>
           <span class="app-link">Deep dive &rarr;</span>
@@ -219,15 +222,17 @@ import Base from '../layouts/Base.astro';
           <p class="section-label">How it connects</p>
           <h2 class="section-heading">How Pulse connects everything</h2>
           <p class="section-lead">
-            Each Beacon service registers with Pulse on startup and heartbeats
-            periodically. Shared state — indexers, quality profiles, settings — flows
-            outward from Pulse to every subscribed service. If you move Pilot to a new
-            host, every other service picks up the new address on the next heartbeat.
+            Each Beacon service registers with Pulse on startup and heartbeats every
+            30 seconds. Shared state — indexers, quality profiles, download clients,
+            media-handling settings — flows outward from Pulse to every subscribed
+            service on a 30-second sync, and immediately when Pulse fires a push
+            hook on save. When Haul registers, Pulse auto-creates the download-client
+            entry so Pilot and Prism find it without anyone copying an API key.
           </p>
           <p class="section-lead" style="margin-top:0.75rem;">
             Pulse isn't Beacon-only. Any Go service can join through the client SDK
-            at <code>pkg/sdk</code> — register, discover peers, pull assigned indexers,
-            and subscribe to shared config with one client instance.
+            at <code>pkg/sdk</code> — register, discover peers, pull assigned
+            indexers, and read shared config with one client instance.
           </p>
         </div>
 
@@ -312,7 +317,7 @@ import Base from '../layouts/Base.astro';
               </span>
               <span class="legend-item">
                 <span class="legend-dot legend-dot--stall"></span>
-                stall events
+                Haul registers (auto-wired download client)
               </span>
             </div>
           </div>
@@ -333,15 +338,16 @@ import Base from '../layouts/Base.astro';
           <p class="section-label">Registration</p>
           <h2 class="section-heading">Register once, configured automatically</h2>
           <p class="section-lead">
-            When Pilot starts, it registers with Pulse: name, URL, capabilities. Pulse
-            returns a tailored config bundle — only the indexers tagged <code>tv</code>,
-            the quality profiles this service subscribes to, and the shared settings
-            relevant to its namespace.
+            When Pilot starts, it registers with Pulse: name, URL, capabilities
+            (<code>content:tv</code>, <code>content:movies</code>, etc.). Pulse hands
+            back the indexers, quality profiles, download clients, and shared
+            media-handling settings that match those capabilities.
           </p>
           <p class="section-lead" style="margin-top:1rem;">
-            Add a new indexer to Pulse and tag it <code>movies</code>. Prism picks it up on
-            the next heartbeat. Tag it <code>tv</code> too and Pilot gets it. One API key to
-            update, not three.
+            Add an indexer to Pulse — its catalog category (Movies, TV) maps to the
+            capability set, and Pulse auto-assigns it to every matching service. A
+            new TV-only indexer reaches Pilot within 30 seconds; a Movies-and-TV
+            one reaches both Pilot and Prism. One API key to update, not three.
           </p>
         </div>
 
@@ -360,8 +366,9 @@ import Base from '../layouts/Base.astro';
                 <pre class="reg-code"><code><span class="syn-kw">&#123;</span>
   <span class="syn-string">"name"</span>:         "pilot",
   <span class="syn-string">"type"</span>:         "media-manager",
-  <span class="syn-string">"url"</span>:          "http://pilot:8383",
+  <span class="syn-string">"api_url"</span>:      "http://pilot:8383",
   <span class="syn-string">"capabilities"</span>: [
+    "content:tv",
     "supports_torrent",
     "supports_usenet"
   ]
@@ -395,16 +402,18 @@ import Base from '../layouts/Base.astro';
                 </div>
                 <pre class="reg-code"><code><span class="syn-kw">&#123;</span>
   <span class="syn-string">"indexers"</span>: [
-    &#123; "name": "NZBgeek", "tags": ["tv"] &#125;,
-    &#123; "name": "Prowlarr", "tags": ["tv"] &#125;
+    &#123; "name": "NZBgeek",  "categories": ["TV"] &#125;,
+    &#123; "name": "TorrentDB", "categories": ["TV"] &#125;
   ],
-  <span class="syn-string">"quality_profile"</span>: &#123;
-    "name":   "HD-1080p",
-    "managed_by_pulse": true
-  &#125;,
-  <span class="syn-string">"config"</span>: &#123;
-    "media.library_root": "/tv",
-    "download.preferred_protocol": "torrent"
+  <span class="syn-string">"quality_profiles"</span>: [
+    &#123; "name": "HD-1080p", "managed_by_pulse": true &#125;
+  ],
+  <span class="syn-string">"download_clients"</span>: [
+    &#123; "name": "haul", "host": "haul", "port": 8484 &#125;
+  ],
+  <span class="syn-string">"shared_settings"</span>: &#123;
+    "rename_files":       true,
+    "colon_replacement": "smart"
   &#125;
 <span class="syn-kw">&#125;</span></code></pre>
               </div>
@@ -495,8 +504,9 @@ import Base from '../layouts/Base.astro';
           </div>
           <h3>Register once, configure everywhere</h3>
           <p>
-            Add an indexer to Pulse, tag it, and every subscribed service picks it up. One
-            API key, one quality profile, one place to change things when they break.
+            Add an indexer to Pulse and every service whose capabilities match picks it
+            up — within 30 seconds, or instantly via push hook. One API key, one
+            quality profile, one place to change things when they break.
           </p>
         </div>
 
@@ -544,9 +554,9 @@ import Base from '../layouts/Base.astro';
           <p class="section-label">Getting started</p>
           <h2 class="section-heading">Up in three commands</h2>
           <p class="section-lead">
-            The full stack — Postgres, Pulse, Pilot, Prism, Haul, and a VPN container
-            — lives in <code>beacon-stack/deploy</code>. Point it at your media
-            directories and run.
+            The full stack — Postgres, Pulse, Pilot, Prism, Haul, and an optional
+            VPN container — lives in <code>beacon-stack/deploy</code>. Point three
+            paths at your media directories and run.
           </p>
           <a
             href="https://github.com/beacon-stack/deploy"
@@ -570,8 +580,8 @@ import Base from '../layouts/Base.astro';
             </div>
             <pre class="terminal-body"><span class="syn-comment"># Clone and configure</span>
 <span class="syn-prompt">$ </span><span class="syn-cmd">git clone</span> https://github.com/beacon-stack/deploy
-<span class="syn-prompt">$ </span><span class="syn-cmd">cp</span> .env.example .env
-<span class="syn-comment"># Set MEDIA_DIR, TV_DIR, MOVIES_DIR in .env</span>
+<span class="syn-prompt">$ </span><span class="syn-cmd">cd</span> deploy &amp;&amp; <span class="syn-cmd">cp</span> .env.example .env
+<span class="syn-comment"># Set TV_PATH, MOVIES_PATH, DOWNLOADS_PATH in .env</span>
 
 <span class="syn-comment"># Start everything</span>
 <span class="syn-prompt">$ </span><span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>

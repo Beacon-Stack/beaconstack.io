@@ -17,8 +17,9 @@ import Base from '../layouts/Base.astro';
         <h1 class="app-title"><span class="gradient-text">Haul</span></h1>
         <p class="app-tagline">
           A self-hosted BitTorrent client built on anacrolix/torrent. Accurate ETAs,
-          three-level stall classification, rename-on-complete using media metadata from
-          Pilot or Prism, and VPN awareness out of the box.
+          multi-level stall detection that catches the dead torrents qBittorrent
+          treats as healthy, rename-on-complete using media metadata from Pilot or
+          Prism, and VPN awareness out of the box.
         </p>
         <div class="app-actions">
           <a href="https://github.com/beacon-stack/haul" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
@@ -58,8 +59,8 @@ import Base from '../layouts/Base.astro';
           <div class="icon-chip">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <h3>Three-level stall detection</h3>
-          <p>Dead torrents are classified at three levels: <code>no_peers_ever</code> (never saw a peer), <code>activity_lost</code> (was flowing, gone silent), and <code>complete_but_no_activity</code>. Published to <code>/api/v1/stalls</code> for Pilot's stallwatcher to blocklist automatically.</p>
+          <h3>Multi-level stall detection</h3>
+          <p>Stalled torrents are graded across four severity levels and tagged with a reason — <code>no_peers_ever</code> (pre-metadata, never saw a peer), <code>no_peers</code> (had peers, lost them all), <code>no_seeders</code> (peers but no seeds), <code>no_data_received</code>. Published to <code>/api/v1/stalls</code> for Pilot's stallwatcher to blocklist automatically. The 847-seeder, five-year-old release with zero actual peers is the one this catches.</p>
         </div>
 
         <div class="feature-card">
@@ -83,7 +84,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </div>
           <h3>Modern React UI</h3>
-          <p>Live-updated over WebSocket — no polling, no stale progress bars. Categories and tags with per-category save paths. Sequential download mode for streaming before the torrent finishes. First-and-last-piece priority for media players.</p>
+          <p>Live-updated over WebSocket — no polling, no stale progress bars. Categories and tags with per-category save paths. Sequential download mode for media players that want to stream before the torrent finishes.</p>
         </div>
 
         <div class="feature-card">
@@ -136,7 +137,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Stall classification</h3>
-          <p>Three-level state machine in <code>internal/core/torrent/stall.go</code>. Level 1: <code>no_peers_ever</code> after the grace period. Level 2: <code>activity_lost</code> past the stall timeout. Level 3: <code>complete_but_no_activity</code>. Anything above level 1 appears on <code>/api/v1/stalls</code>.</p>
+          <p>Four-level state machine in <code>internal/core/torrent/stall.go</code>. Level 1: no activity for <code>stall_timeout</code> (reannounce). Level 2: 2&times; the timeout (force DHT). Level 3: 5&times; the timeout (notify ecosystem). And the special <code>StallNoPeersEver</code> level for torrents that never saw a single peer past the startup grace period — the classic "looks healthy on paper, no one home" case.</p>
         </div>
 
         <div class="detail-card">
@@ -176,7 +177,7 @@ import Base from '../layouts/Base.astro';
   <span class="syn-flag">-v</span> /path/to/downloads:/downloads \
   ghcr.io/beacon-stack/haul:latest</pre>
       </div>
-      <p class="install-note reveal">Open <code>http://localhost:8484</code> — Haul generates an API key on first run. Find it in Settings → System.</p>
+      <p class="install-note reveal">Open <code>http://localhost:8484</code>. Haul generates an API key on first run and persists it to <code>/config/config.yaml</code>; it isn't surfaced in the UI. In the full Beacon stack, Pulse and Haul exchange keys automatically through the registration handshake, so you only need to read the config file directly when talking to Haul from outside.</p>
     </div>
   </section>
 
@@ -195,10 +196,12 @@ import Base from '../layouts/Base.astro';
           <tbody>
             <tr><td><code>HAUL_SERVER_PORT</code></td><td><code>8484</code></td><td>Web UI and API port</td></tr>
             <tr><td><code>HAUL_TORRENT_LISTEN_PORT</code></td><td><code>6881</code></td><td>Peer-wire listen port</td></tr>
-            <tr><td><code>HAUL_TORRENT_DOWNLOADS_PATH</code></td><td><code>/downloads</code></td><td>Default save path</td></tr>
+            <tr><td><code>HAUL_TORRENT_DOWNLOAD_DIR</code></td><td><code>/downloads</code></td><td>Default save path</td></tr>
             <tr><td><code>HAUL_DATABASE_DSN</code></td><td>—</td><td>Postgres DSN (required)</td></tr>
-            <tr><td><code>HAUL_AUTH_API_KEY</code></td><td>auto</td><td>API key; autogenerated on first run if unset</td></tr>
-            <tr><td><code>HAUL_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL (optional)</td></tr>
+            <tr><td><code>HAUL_DATABASE_PASSWORD_FILE</code></td><td>—</td><td>Path to a Docker secret holding the DB password</td></tr>
+            <tr><td><code>HAUL_AUTH_API_KEY</code></td><td>auto on first run</td><td>API key. Persisted to <code>config.yaml</code>; not surfaced in the UI</td></tr>
+            <tr><td><code>HAUL_AUTH_API_KEY_FILE</code></td><td>—</td><td>Path to a Docker secret holding the API key</td></tr>
+            <tr><td><code>HAUL_PULSE_URL</code></td><td>—</td><td>Pulse control-plane URL. When set, Haul registers itself as a download client and hands its API key to Pulse so Pilot/Prism wire up automatically</td></tr>
             <tr><td><code>HAUL_TORRENT_RENAME_ON_COMPLETE</code></td><td><code>false</code></td><td>Rename completed downloads using media metadata</td></tr>
             <tr><td><code>HAUL_TORRENT_PAUSE_ON_COMPLETE</code></td><td><code>false</code></td><td>Pause torrents on finish (for ratio-sensitive trackers)</td></tr>
             <tr><td><code>HAUL_TORRENT_STALL_TIMEOUT</code></td><td><code>120</code></td><td>Seconds of inactivity before a torrent is classified stalled</td></tr>
