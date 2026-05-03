@@ -107,16 +107,15 @@ import Base from '../layouts/Base.astro';
         <h2 class="section-heading">Screenshots</h2>
         <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary. Live queue updates over WebSocket.</p>
       </div>
-      <div class="screenshot-grid reveal">
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Dashboard — active torrents with live ETAs</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">VPN status panel — external IP and tunnel state</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Settings — stall timeout, rename, rate limits</span>
-        </div>
+      <div class="screenshot-grid screenshot-grid--two reveal">
+        <figure class="screenshot">
+          <img src="/screenshots/haul/01-dashboard.png" alt="Haul dashboard — twelve torrents with status filter pills, sort, search, and per-row size, peers, ratio, and progress" loading="lazy" width="1440" height="900" />
+          <figcaption>Dashboard — status pills, per-torrent stats, live progress bars</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/haul/02-torrent-detail.png" alt="Haul torrent detail — status, size, downloaded, peers, ratio, piece map visualization, trackers, paths, and file list" loading="lazy" width="1440" height="900" />
+          <figcaption>Torrent detail — piece map, trackers, files, and paths</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -320,22 +319,37 @@ import Base from '../layouts/Base.astro';
     gap: 1rem;
   }
 
-  .screenshot-placeholder {
+  .screenshot {
     background-color: var(--color-surface-2);
-    border: 1px dashed var(--color-border-2);
+    border: 1px solid var(--color-border-2);
     border-radius: 10px;
-    aspect-ratio: 16/10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    overflow: hidden;
+    margin: 0;
   }
 
-  .placeholder-label {
+  .screenshot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .screenshot figcaption {
     font-size: 0.75rem;
     color: var(--color-fg-3);
-    text-align: center;
+    padding: 0.625rem 0.875rem;
+    border-top: 1px solid var(--color-border-2);
+    background-color: var(--color-surface-1);
     line-height: 1.5;
+  }
+
+  .screenshot-grid--two {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .detail-grid {

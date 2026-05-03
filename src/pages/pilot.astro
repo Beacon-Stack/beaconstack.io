@@ -107,15 +107,18 @@ import Base from '../layouts/Base.astro';
         <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary.</p>
       </div>
       <div class="screenshot-grid reveal">
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Library — series grid with poster art</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Season detail — episode list with monitoring controls</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Manual search — quality badges, episode count tier</span>
-        </div>
+        <figure class="screenshot">
+          <img src="/screenshots/pilot/01-library.png" alt="Pilot library — grid of TV series posters with episode counts and per-show progress" loading="lazy" width="1440" height="900" />
+          <figcaption>Library — series grid with episode counts and progress</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/pilot/04-series-detail.png" alt="Pilot series detail for Andor — season tabs with download progress bars" loading="lazy" width="1440" height="900" />
+          <figcaption>Series detail — season-by-season download progress</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/pilot/02-activity.png" alt="Pilot Activity tab showing the four rails — active tasks, currently downloading, needs attention with stall + grab failure rows, and recently imported" loading="lazy" width="1440" height="900" />
+          <figcaption>Activity — what's happening right now, including stalls and grab failures</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -318,21 +321,29 @@ import Base from '../layouts/Base.astro';
     gap: 1rem;
   }
 
-  .screenshot-placeholder {
+  .screenshot {
     background-color: var(--color-surface-2);
-    border: 1px dashed var(--color-border-2);
+    border: 1px solid var(--color-border-2);
     border-radius: 10px;
-    aspect-ratio: 16/10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    overflow: hidden;
+    margin: 0;
   }
 
-  .placeholder-label {
+  .screenshot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .screenshot figcaption {
     font-size: 0.75rem;
     color: var(--color-fg-3);
-    text-align: center;
+    padding: 0.625rem 0.875rem;
+    border-top: 1px solid var(--color-border-2);
+    background-color: var(--color-surface-1);
     line-height: 1.5;
   }
 
