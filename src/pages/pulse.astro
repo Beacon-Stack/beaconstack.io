@@ -107,15 +107,18 @@ import Base from '../layouts/Base.astro';
         <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary. No separate server to run.</p>
       </div>
       <div class="screenshot-grid reveal">
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Dashboard — service overview + indexer status</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Indexer catalog — search, filter, one-click add</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Shared config — namespace filtering + subscriptions</span>
-        </div>
+        <figure class="screenshot">
+          <img src="/screenshots/pulse/01-dashboard.png" alt="Pulse dashboard showing VPN connection panel, registered services with health, and download throughput" loading="lazy" width="1440" height="900" />
+          <figcaption>Dashboard — VPN status, registered services, live throughput</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/pulse/02-indexers.png" alt="Pulse indexers list with Torznab category badges across eleven configured indexers" loading="lazy" width="1440" height="900" />
+          <figcaption>Indexers — centrally managed, auto-assigned by content category</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/pulse/03-quality-profiles.png" alt="Pulse quality profiles list — Any, HD-1080p, HD-720p, SD, Ultra-HD" loading="lazy" width="1440" height="900" />
+          <figcaption>Quality profiles — defined here, pushed to every consumer</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -338,21 +341,29 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
     gap: 1rem;
   }
 
-  .screenshot-placeholder {
+  .screenshot {
     background-color: var(--color-surface-2);
-    border: 1px dashed var(--color-border-2);
+    border: 1px solid var(--color-border-2);
     border-radius: 10px;
-    aspect-ratio: 16/10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    overflow: hidden;
+    margin: 0;
   }
 
-  .placeholder-label {
+  .screenshot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .screenshot figcaption {
     font-size: 0.75rem;
     color: var(--color-fg-3);
-    text-align: center;
+    padding: 0.625rem 0.875rem;
+    border-top: 1px solid var(--color-border-2);
+    background-color: var(--color-surface-1);
     line-height: 1.5;
   }
 

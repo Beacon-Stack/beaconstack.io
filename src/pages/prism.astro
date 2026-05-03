@@ -108,15 +108,18 @@ import Base from '../layouts/Base.astro';
         <p class="section-lead">React 19 + TypeScript UI embedded in the Go binary.</p>
       </div>
       <div class="screenshot-grid reveal">
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Library — movie grid with poster art and quality badges</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Manual search — per-release scoring breakdown</span>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="placeholder-label">Library stats — quality, genre, decade, indexer performance</span>
-        </div>
+        <figure class="screenshot">
+          <img src="/screenshots/prism/01-library.png" alt="Prism library — grid of fifty movie posters with status badges and search and sort filters" loading="lazy" width="1440" height="900" />
+          <figcaption>Library — fifty movies with filters, sort, and status badges</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/prism/02-movie-detail.png" alt="Prism movie detail for Dune — runtime, status, edition selector, cast list, and recommended movies" loading="lazy" width="1440" height="900" />
+          <figcaption>Movie detail — edition selector, cast, and TMDB recommendations</figcaption>
+        </figure>
+        <figure class="screenshot">
+          <img src="/screenshots/prism/04-stats.png" alt="Prism statistics page — total movies, movies-by-decade bar chart, library growth line chart, quality distribution bars, and grab performance gauge" loading="lazy" width="1440" height="900" />
+          <figcaption>Statistics — collection breakdown, growth, quality, grab performance</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -319,21 +322,29 @@ import Base from '../layouts/Base.astro';
     gap: 1rem;
   }
 
-  .screenshot-placeholder {
+  .screenshot {
     background-color: var(--color-surface-2);
-    border: 1px dashed var(--color-border-2);
+    border: 1px solid var(--color-border-2);
     border-radius: 10px;
-    aspect-ratio: 16/10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    overflow: hidden;
+    margin: 0;
   }
 
-  .placeholder-label {
+  .screenshot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .screenshot figcaption {
     font-size: 0.75rem;
     color: var(--color-fg-3);
-    text-align: center;
+    padding: 0.625rem 0.875rem;
+    border-top: 1px solid var(--color-border-2);
+    background-color: var(--color-surface-1);
     line-height: 1.5;
   }
 
