@@ -210,6 +210,8 @@ import Base from '../layouts/Base.astro';
         </a>
 
       </div>
+
+      <p class="stack-footnote reveal">Per-app default theme. 18 presets, all switchable.</p>
     </div>
   </section>
 
@@ -867,6 +869,13 @@ import Base from '../layouts/Base.astro';
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+
+  .stack-footnote {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-fg-3);
   }
 
   .app-card {
