@@ -1,0 +1,491 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Minimal YAML/shell highlighting: escape, then colour comments.
+function hl(src: string): string {
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return src
+    .trim()
+    .split('\n')
+    .map((line) => {
+      const i = line.search(/(^|\s)#/);
+      if (i < 0) return esc(line);
+      const at = line[i] === '#' ? i : i + 1;
+      return esc(line.slice(0, at)) + '<span class="syn-comment">' + esc(line.slice(at)) + '</span>';
+    })
+    .join('\n');
+}
+
+const pilotHaul = `
+# docker-compose.yml: Pilot + Haul, the Sonarr + qBittorrent of Beacon
+services:
+  pilot:
+    image: ghcr.io/beacon-stack/pilot:latest
+    container_name: pilot
+    restart: unless-stopped
+    ports:
+      - "8383:8383"
+    environment:
+      TZ: UTC
+      PILOT_PULSE_URL: ""           # no Pulse in this setup
+    volumes:
+      - /opt/beacon/pilot:/config
+      - /srv/media:/data            # same folder for every app
+
+  haul:
+    image: ghcr.io/beacon-stack/haul:latest
+    container_name: haul
+    restart: unless-stopped
+    ports:
+      - "8484:8484"
+      - "6881:6881/tcp"
+      - "6881:6881/udp"
+    environment:
+      TZ: UTC
+      HAUL_TORRENT_DOWNLOAD_DIR: /data/torrents
+      HAUL_PULSE_URL: ""
+    volumes:
+      - /opt/beacon/haul:/config
+      - /srv/media:/data
+`;
+
+const allApps = `
+# docker-compose.yml: Pilot + Prism + Haul
+services:
+  pilot:
+    image: ghcr.io/beacon-stack/pilot:latest
+    container_name: pilot
+    restart: unless-stopped
+    ports: ["8383:8383"]
+    environment:
+      TZ: UTC
+      PILOT_PULSE_URL: ""
+    volumes:
+      - /opt/beacon/pilot:/config
+      - /srv/media:/data
+
+  prism:
+    image: ghcr.io/beacon-stack/prism:latest
+    container_name: prism
+    restart: unless-stopped
+    ports: ["8282:8282"]
+    environment:
+      TZ: UTC
+      PRISM_PULSE_URL: ""
+    volumes:
+      - /opt/beacon/prism:/config
+      - /srv/media:/data
+
+  haul:
+    image: ghcr.io/beacon-stack/haul:latest
+    container_name: haul
+    restart: unless-stopped
+    ports: ["8484:8484", "6881:6881/tcp", "6881:6881/udp"]
+    environment:
+      TZ: UTC
+      HAUL_TORRENT_DOWNLOAD_DIR: /data/torrents
+      HAUL_PULSE_URL: ""
+    volumes:
+      - /opt/beacon/haul:/config
+      - /srv/media:/data
+`;
+
+const fullEnv = `
+# .env, next to docker-compose.yml
+BEACON_API_KEY=paste-the-output-of: openssl rand -hex 32
+`;
+
+const fullStack = `
+# docker-compose.yml: everything, wired together by Pulse
+x-pulse-client: &pulse-client
+  depends_on:
+    pulse:
+      condition: service_healthy
+
+services:
+  pulse:
+    image: ghcr.io/beacon-stack/pulse:latest
+    container_name: pulse
+    restart: unless-stopped
+    ports: ["9696:9696"]
+    environment:
+      TZ: UTC
+      PULSE_AUTH_API_KEY: \${BEACON_API_KEY}
+      PULSE_SERVER_EXTERNAL_URL: http://pulse:9696
+    volumes:
+      - /opt/beacon/pulse:/config
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9696/health"]
+      interval: 15s
+      start_period: 20s
+
+  pilot:
+    <<: *pulse-client
+    image: ghcr.io/beacon-stack/pilot:latest
+    container_name: pilot
+    restart: unless-stopped
+    ports: ["8383:8383"]
+    environment:
+      TZ: UTC
+      PILOT_PULSE_URL: http://pulse:9696
+      PILOT_PULSE_API_KEY: \${BEACON_API_KEY}
+      ADVERTISE_HOST: pilot         # how Pulse reaches Pilot
+    volumes:
+      - /opt/beacon/pilot:/config
+      - /srv/media:/data
+
+  prism:
+    <<: *pulse-client
+    image: ghcr.io/beacon-stack/prism:latest
+    container_name: prism
+    restart: unless-stopped
+    ports: ["8282:8282"]
+    environment:
+      TZ: UTC
+      PRISM_PULSE_URL: http://pulse:9696
+      PRISM_PULSE_API_KEY: \${BEACON_API_KEY}
+      ADVERTISE_HOST: prism
+    volumes:
+      - /opt/beacon/prism:/config
+      - /srv/media:/data
+
+  haul:
+    <<: *pulse-client
+    image: ghcr.io/beacon-stack/haul:latest
+    container_name: haul
+    restart: unless-stopped
+    ports: ["8484:8484", "6881:6881/tcp", "6881:6881/udp"]
+    environment:
+      TZ: UTC
+      HAUL_TORRENT_DOWNLOAD_DIR: /data/torrents
+      HAUL_PULSE_URL: http://pulse:9696
+      HAUL_PULSE_API_KEY: \${BEACON_API_KEY}
+      ADVERTISE_HOST: haul          # Pilot and Prism reach Haul here
+    volumes:
+      - /opt/beacon/haul:/config
+      - /srv/media:/data
+`;
+
+const vpn = `
+# Changes to the full-stack file to send Haul's traffic through a VPN.
+# Gluetun supports 30+ providers: https://github.com/qdm12/gluetun-wiki
+
+# 1. Pin the network's subnet so the VPN firewall can allow it.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  # 2. Add the VPN container. Haul's ports move here.
+  vpn:
+    image: qmcgaw/gluetun:latest
+    container_name: vpn
+    restart: unless-stopped
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    ports: ["8484:8484", "6881:6881/tcp", "6881:6881/udp"]
+    environment:
+      VPN_SERVICE_PROVIDER: private internet access
+      OPENVPN_USER: your-vpn-username
+      OPENVPN_PASSWORD: your-vpn-password
+      SERVER_REGIONS: Netherlands
+      FIREWALL_INPUT_PORTS: "8484"                 # Haul's UI and API
+      FIREWALL_OUTBOUND_SUBNETS: "172.28.0.0/16"   # so Haul can reach Pulse
+    volumes:
+      - /opt/beacon/gluetun:/gluetun
+
+  # 3. Run Haul inside the VPN's network. Remove its ports: line.
+  haul:
+    network_mode: service:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+      pulse:
+        condition: service_healthy
+    environment:
+      ADVERTISE_HOST: vpn           # Haul is now reached through the VPN
+      # ...the rest of Haul's settings stay the same
+`;
+
+const separate = `
+# In each app's own compose file (Pulse on 192.168.1.10):
+PILOT_PULSE_URL: http://192.168.1.10:9696
+PILOT_PULSE_API_KEY: <Pulse's API key>
+ADVERTISE_HOST: 192.168.1.10        # the address of the host running Pilot
+
+# In Pulse's compose file:
+PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
+`;
+---
+
+<Base
+  title="Install · The Beacon Stack"
+  description="Run one Beacon app or all of them. Every app ships its own Docker Compose file; these examples show how to connect them."
+  active="install"
+>
+
+  <section class="sub-hero">
+    <div class="sub-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="sub-hero-inner">
+        <span class="app-badge">Install</span>
+        <h1 class="app-title"><span class="gradient-text">Run what you need</span></h1>
+        <p class="app-tagline">
+          Every Beacon app ships its own compose file, like Sonarr and Radarr. Run one on its
+          own, or put the ones you want in a single file. The examples below go from Pilot
+          and Haul up to the full stack.
+        </p>
+        <div class="app-actions">
+          <a href="https://github.com/beacon-stack/pilot/blob/main/docker/docker-compose.yml" class="btn btn--outline" target="_blank" rel="noopener noreferrer">Pilot</a>
+          <a href="https://github.com/beacon-stack/prism/blob/main/docker/docker-compose.yml" class="btn btn--outline" target="_blank" rel="noopener noreferrer">Prism</a>
+          <a href="https://github.com/beacon-stack/haul/blob/main/docker/docker-compose.yml" class="btn btn--outline" target="_blank" rel="noopener noreferrer">Haul</a>
+          <a href="https://github.com/beacon-stack/pulse/blob/main/docker-compose.yml" class="btn btn--outline" target="_blank" rel="noopener noreferrer">Pulse</a>
+        </div>
+        <p class="install-note">Each link is that app's standalone compose file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The one rule -->
+  <section class="section section--alt" id="data">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Before you start</p>
+        <h2 class="section-heading">One folder for media and downloads</h2>
+        <p class="section-lead">
+          Give every app the <em>same</em> host folder, mounted at <code>/data</code>. The
+          apps create this layout inside it on first start:
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">/data</span>
+        </div>
+        <pre class="terminal-body">/data
+├── torrents
+│   ├── tv        <span class="syn-comment"># Haul saves Pilot's downloads here (category "tv")</span>
+│   └── movies    <span class="syn-comment"># …and Prism's here (category "movies")</span>
+└── media
+    ├── tv        <span class="syn-comment"># Pilot's library</span>
+    └── movies    <span class="syn-comment"># Prism's library</span></pre>
+      </div>
+      <ul class="points reveal">
+        <li><strong>Instant imports.</strong> Downloads and the library share one mount, so an import is a hardlink: no copying, and no extra disk space while the torrent seeds. Separate mounts such as <code>/tv</code> and <code>/downloads</code> always copy, even on the same disk.</li>
+        <li><strong>No path mappings.</strong> Every app sees the same paths, so the path Haul reports is the path Pilot opens.</li>
+        <li><strong>Permissions.</strong> The apps run as uid/gid 1000. Create the folder first and give it to them: <code>sudo mkdir -p /srv/media &amp;&amp; sudo chown 1000:1000 /srv/media</code>. Docker otherwise creates a missing folder as root and imports fail.</li>
+        <li><strong>Config</strong> goes in a separate folder per app (<code>/opt/beacon/&lt;app&gt;</code> below). Keep it on a local disk, not a network share.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Example 1 -->
+  <section class="section" id="pilot-haul">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Example 1</p>
+        <h2 class="section-heading">Pilot + Haul</h2>
+        <p class="section-lead">TV shows and a torrent client: the Beacon version of Sonarr and qBittorrent.</p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(pilotHaul)}></pre>
+      </div>
+      <ol class="steps reveal">
+        <li>Run <code>docker compose up -d</code>.</li>
+        <li>Open Haul at <code>http://&lt;host&gt;:8484</code> and copy its API key from Settings.</li>
+        <li>Open Pilot at <code>http://&lt;host&gt;:8383</code>. Under Settings → Download Clients, add Haul with URL <code>http://haul:8484</code> (apps in one compose file reach each other by service name) and that API key.</li>
+        <li>Add your indexers in Pilot, then add a series. Pilot already has a TV library at <code>/data/media/tv</code> and default quality profiles.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Example 2 -->
+  <section class="section section--alt" id="all-apps">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Example 2</p>
+        <h2 class="section-heading">Pilot + Prism + Haul</h2>
+        <p class="section-lead">Add movies. Prism uses the same Haul and the same <code>/data</code>.</p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(allApps)}></pre>
+      </div>
+      <p class="install-note reveal">
+        Add Haul to both Pilot and Prism as in example 1. Each adds its own indexers. If that's
+        one step too many, example 3 lets Pulse do it once for both.
+      </p>
+    </div>
+  </section>
+
+  <!-- Example 3 -->
+  <section class="section" id="full-stack">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Example 3</p>
+        <h2 class="section-heading">The full stack, with Pulse</h2>
+        <p class="section-lead">
+          Pulse holds your indexers, quality profiles and download clients in one place and
+          hands them to Pilot and Prism. Haul registers itself, so nobody adds it by hand.
+          The apps share one key through a <code>.env</code> file.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">.env</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(fullEnv)}></pre>
+      </div>
+      <div class="terminal reveal" style="margin-top:1rem;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(fullStack)}></pre>
+      </div>
+      <ol class="steps reveal">
+        <li>Run <code>docker compose up -d</code>. Pilot, Prism and Haul register with Pulse within a few seconds.</li>
+        <li>Open Pulse at <code>http://&lt;host&gt;:9696</code> and add your indexers there. Pilot and Prism pick them up, along with Haul as their download client.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Example 4 -->
+  <section class="section section--alt" id="vpn">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Example 4</p>
+        <h2 class="section-heading">Haul behind a VPN</h2>
+        <p class="section-lead">
+          Send only torrent traffic through a <a href="https://github.com/qdm12/gluetun" target="_blank" rel="noopener noreferrer" class="text-link">Gluetun</a>
+          VPN container; everything else stays on your network. These are the changes to example 3.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml (changes)</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(vpn)}></pre>
+      </div>
+      <p class="install-note reveal">
+        If your provider supports port forwarding, set <code>VPN_PORT_FORWARDING: "on"</code>,
+        <code>VPN_PORT_FORWARDING_LISTENING_PORT: "6881"</code> and
+        <code>FIREWALL_VPN_INPUT_PORTS: "6881"</code> on the VPN container for better speeds.
+      </p>
+    </div>
+  </section>
+
+  <!-- Separate projects -->
+  <section class="section" id="separate">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Mixing and matching</p>
+        <h2 class="section-heading">Keeping each app in its own compose file</h2>
+        <p class="section-lead">
+          Running each app's own compose file, maybe on different machines, works too. Apps in
+          separate compose projects can't reach each other by name, so use the host's address
+          instead:
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">environment</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(separate)}></pre>
+      </div>
+      <ul class="points reveal">
+        <li><strong>Download client:</strong> add Haul as <code>http://192.168.1.10:8484</code>, the same as you would add qBittorrent to Sonarr.</li>
+        <li><strong>Same files, same paths:</strong> the apps can share hardlinks only when they run on the same host and get the same folder at <code>/data</code>. On different hosts, give them the same network share at <code>/data</code>; imports then copy instead of hardlinking.</li>
+      </ul>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .sub-hero { position: relative; padding: 100px 0 80px; overflow: hidden; }
+  .sub-hero-glow {
+    position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse at center, var(--color-accent-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .sub-hero-inner {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    max-width: 700px; margin: 0 auto; position: relative; z-index: 1;
+  }
+  .app-badge {
+    display: inline-flex; align-items: center; padding: 0.25em 0.75em; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    background-color: var(--color-accent-dim); border: 1px solid var(--color-accent-glow);
+    color: var(--color-accent); margin-bottom: 1.25rem;
+  }
+  .app-title {
+    font-size: clamp(2.25rem, 7vw, 4.5rem); font-weight: 900; letter-spacing: -0.04em;
+    line-height: 1.05; margin-bottom: 1.25rem;
+  }
+  .app-tagline { font-size: 1.125rem; color: var(--color-fg-2); line-height: 1.75; max-width: 56ch; margin-bottom: 2rem; }
+  .app-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+  .section { padding: 100px 0; border-top: 1px solid var(--color-border); }
+  .section--alt { background-color: var(--color-surface); }
+  .section-header { margin-bottom: 2rem; }
+  .narrow { max-width: 820px; }
+
+  .terminal-body { overflow-x: auto; }
+
+  .steps, .points {
+    margin-top: 1.5rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem;
+    color: var(--color-fg-2); font-size: 0.95rem; line-height: 1.7;
+  }
+  .steps { list-style: decimal; }
+  .points { list-style: disc; }
+  .steps strong, .points strong { color: var(--color-fg-1, inherit); }
+
+  .install-note { margin-top: 1.25rem; font-size: 0.9rem; color: var(--color-fg-2); line-height: 1.7; }
+
+  .install-note code, .steps code, .points code, .section-lead code {
+    color: var(--color-accent); background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow); font-size: 0.875em;
+    padding: 0.1em 0.35em; border-radius: 3px; font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  .text-link { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+
+  @media (max-width: 900px) {
+    .sub-hero { padding: 80px 0 64px; }
+    .section { padding: 64px 0; }
+  }
+</style>
