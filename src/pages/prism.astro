@@ -30,7 +30,7 @@ import Base from '../layouts/Base.astro';
         <div class="app-meta">
           <span class="meta-pill">Port :8282</span>
           <span class="meta-pill">Go 1.25</span>
-          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">SQLite</span>
           <span class="meta-pill">Radarr v3 API</span>
           <span class="meta-pill">MIT</span>
         </div>
@@ -163,24 +163,22 @@ import Base from '../layouts/Base.astro';
       <div class="section-header reveal">
         <p class="section-label">Install</p>
         <h2 class="section-heading">Getting started with Prism</h2>
-        <p class="section-lead">Standalone Docker or full stack via <a href="https://github.com/beacon-stack/deploy" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/deploy</a>.</p>
+        <p class="section-lead">Prism runs on its own, like Radarr. Grab its compose file, set two paths and start it. To run it with Haul, Pilot or Pulse, see the <a href="/install" class="text-link">install guide</a>.</p>
       </div>
-      <div class="terminal reveal" style="max-width:620px;">
+      <div class="terminal reveal" style="max-width:680px;">
         <div class="terminal-bar">
           <span class="terminal-dot terminal-dot--red"></span>
           <span class="terminal-dot terminal-dot--yellow"></span>
           <span class="terminal-dot terminal-dot--green"></span>
-          <span class="terminal-title">docker</span>
+          <span class="terminal-title">terminal</span>
           <button class="terminal-copy-btn" type="button">Copy</button>
         </div>
-        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
-  <span class="syn-flag">--name</span> prism \
-  <span class="syn-flag">-p</span> 8282:8282 \
-  <span class="syn-flag">-v</span> /path/to/config:/config \
-  <span class="syn-flag">-v</span> /path/to/movies:/movies \
-  ghcr.io/beacon-stack/prism:latest</pre>
+        <pre class="terminal-body"><span class="syn-comment"># Get the compose file, then set its paths</span>
+<span class="syn-cmd">curl</span> <span class="syn-flag">-fsSLO</span> https://raw.githubusercontent.com/beacon-stack/prism/main/docker/docker-compose.yml
+<span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
-      <p class="install-note reveal">Open <code>http://localhost:8282</code> — Prism generates an API key on first run. Find it in Settings → App Settings.</p>
+      <p class="install-note reveal"><code>/data/media/movies</code> is created as Prism's library on first start, along with default quality profiles.</p>
+      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8282</code>. Prism generates an API key on first run; find it in Settings → App Settings.</p>
     </div>
   </section>
 
@@ -189,20 +187,22 @@ import Base from '../layouts/Base.astro';
     <div class="container">
       <div class="section-header reveal">
         <p class="section-label">Configuration</p>
-        <h2 class="section-heading">Environment variables</h2>
+        <h2 class="section-heading">Mounts and environment variables</h2>
       </div>
       <div class="config-table-wrap reveal">
         <table class="config-table">
           <thead>
-            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+            <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>MOVIES_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to your movie library. Bound into Prism at <code>/movies</code>. Must be on the same filesystem as <code>DOWNLOADS_PATH</code> for hardlink imports.</td></tr>
-            <tr><td><code>DOWNLOADS_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to completed downloads. Shared across Pilot, Prism, and Haul.</td></tr>
-            <tr><td><code>PRISM_PORT</code></td><td><code>8282</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 8282 is taken.</td></tr>
-            <tr><td><code>PRISM_CONFIG_PATH</code></td><td><code>./config/prism</code></td><td>Where Prism's <code>config.yaml</code> and cached state live.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>/config</code></td><td>—</td><td><strong>Required mount.</strong> Prism's database and settings. Keep it on a local disk.</td></tr>
+            <tr><td><code>/data</code></td><td>—</td><td><strong>Required mount.</strong> Your media and downloads in one folder, the same one every Beacon app gets. The library is <code>/data/media/movies</code>; downloads go to <code>/data/torrents/movies</code>. Must be writable by uid 1000.</td></tr>
+            <tr><td><code>PRISM_PULSE_URL</code></td><td>—</td><td>Pulse address, e.g. <code>http://pulse:9696</code>. Empty runs Prism on its own.</td></tr>
+            <tr><td><code>PRISM_PULSE_API_KEY</code></td><td>—</td><td>Pulse's API key, needed with <code>PRISM_PULSE_URL</code>.</td></tr>
+            <tr><td><code>ADVERTISE_HOST</code></td><td><code>container hostname</code></td><td>Address Pulse uses to reach Prism: the service name in one compose file, or the host's IP across separate ones.</td></tr>
+            <tr><td><code>PRISM_AUTH_API_KEY</code></td><td><code>generated</code></td><td>API key for scripts and other apps. Shown in Settings → App Settings.</td></tr>
+            <tr><td><code>PRISM_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone, e.g. <code>America/New_York</code>.</td></tr>
           </tbody>
         </table>
       </div>

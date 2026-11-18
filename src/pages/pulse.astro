@@ -30,7 +30,7 @@ import Base from '../layouts/Base.astro';
         <div class="app-meta">
           <span class="meta-pill">Port :9696</span>
           <span class="meta-pill">Go 1.25</span>
-          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">SQLite</span>
           <span class="meta-pill">MIT</span>
         </div>
       </div>
@@ -160,7 +160,7 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
 
         <div class="detail-card">
           <h3>Storage</h3>
-          <p>Postgres-backed state with Goose migrations and SQLC-generated type-safe query code. Zero configuration out of the box — all settings editable in the UI or via <code>PULSE_*</code> environment variables.</p>
+          <p>SQLite state with Goose migrations and SQLC-generated type-safe query code. Zero configuration out of the box — all settings editable in the UI or via <code>PULSE_*</code> environment variables.</p>
         </div>
 
         <div class="detail-card">
@@ -178,23 +178,21 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
       <div class="section-header reveal">
         <p class="section-label">Install</p>
         <h2 class="section-heading">Getting started with Pulse</h2>
-        <p class="section-lead">Standalone Docker for a single-service install. Full stack compose in <a href="https://github.com/beacon-stack/deploy" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/deploy</a>.</p>
+        <p class="section-lead">Pulse is optional: the other apps run on their own. Add it to manage indexers, quality profiles and download clients in one place. The <a href="/install#full-stack" class="text-link">install guide</a> has a full-stack example.</p>
       </div>
-      <div class="terminal reveal" style="max-width:580px;">
+      <div class="terminal reveal" style="max-width:680px;">
         <div class="terminal-bar">
           <span class="terminal-dot terminal-dot--red"></span>
           <span class="terminal-dot terminal-dot--yellow"></span>
           <span class="terminal-dot terminal-dot--green"></span>
-          <span class="terminal-title">docker</span>
+          <span class="terminal-title">terminal</span>
           <button class="terminal-copy-btn" type="button">Copy</button>
         </div>
-        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
-  <span class="syn-flag">--name</span> pulse \
-  <span class="syn-flag">-p</span> 9696:9696 \
-  <span class="syn-flag">-v</span> /path/to/config:/config \
-  ghcr.io/beacon-stack/pulse:latest</pre>
+        <pre class="terminal-body"><span class="syn-comment"># Get the compose file, then set its paths</span>
+<span class="syn-cmd">curl</span> <span class="syn-flag">-fsSLO</span> https://raw.githubusercontent.com/beacon-stack/pulse/main/docker-compose.yml
+<span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
-      <p class="install-note reveal">Open <code>http://localhost:9696</code> — Pulse starts with zero additional configuration.</p>
+            <p class="install-note reveal">Open <code>http://&lt;host&gt;:9696</code>. Point each app at Pulse with its <code>*_PULSE_URL</code> and <code>*_PULSE_API_KEY</code> settings.</p>
     </div>
   </section>
 
@@ -203,25 +201,21 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
     <div class="container">
       <div class="section-header reveal">
         <p class="section-label">Configuration</p>
-        <h2 class="section-heading">Environment variables</h2>
+        <h2 class="section-heading">Mounts and environment variables</h2>
       </div>
       <div class="config-table-wrap reveal">
         <table class="config-table">
           <thead>
-            <tr>
-              <th>Variable</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
+            <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>PULSE_PORT</code></td><td><code>9696</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 9696 is taken on your host.</td></tr>
-            <tr><td><code>PULSE_CONFIG_PATH</code></td><td><code>./config/pulse</code></td><td>Where Pulse's <code>config.yaml</code> and cached state live. Override to put configs on a different volume.</td></tr>
-            <tr><td><code>PULSE_FLARESOLVERR_URL</code></td><td>—</td><td>FlareSolverr endpoint for Cloudflare-protected indexers. <strong>Opt-in</strong>: uncomment in <code>docker-compose.yml</code> and set <code>COMPOSE_PROFILES=flaresolverr</code>.</td></tr>
-            <tr><td><code>PULSE_DASHBOARD_DOCKER_SOCKET</code></td><td>—</td><td>Path to the Docker socket. Enables container resource panels in the dashboard. <strong>Opt-in</strong>: uncomment both this var and the <code>/var/run/docker.sock</code> mount in <code>docker-compose.yml</code>.</td></tr>
-            <tr><td><code>PULSE_DASHBOARD_GLUETUN_URL</code></td><td>—</td><td>Gluetun control-server URL for the dashboard's VPN panel. Auto-set to <code>http://vpn:8000</code> when the VPN overlay is active.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>/config</code></td><td>—</td><td><strong>Required mount.</strong> Pulse's database and settings. Keep it on a local disk.</td></tr>
+            <tr><td><code>PULSE_SERVER_EXTERNAL_URL</code></td><td><code>http://localhost:9696</code></td><td>Address the other apps use to reach Pulse; it goes into the indexer URLs Pulse hands out. Use <code>http://pulse:9696</code> in one compose file, or the host's IP across separate ones.</td></tr>
+            <tr><td><code>PULSE_AUTH_API_KEY</code></td><td><code>generated</code></td><td>Pulse's API key. Setting it lets the apps share one key from a <code>.env</code> file.</td></tr>
+            <tr><td><code>PULSE_FLARESOLVERR_URL</code></td><td>—</td><td>FlareSolverr endpoint for indexers behind Cloudflare.</td></tr>
+            <tr><td><code>PULSE_DASHBOARD_DOCKER_SOCKET</code></td><td>—</td><td>Path to the Docker socket (also mount it) for container stats on the dashboard. The socket effectively grants root, so this is opt-in.</td></tr>
+            <tr><td><code>PULSE_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone, e.g. <code>America/New_York</code>.</td></tr>
           </tbody>
         </table>
       </div>

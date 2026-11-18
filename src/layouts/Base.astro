@@ -4,7 +4,7 @@ import '../styles/global.css';
 export interface Props {
   title: string;
   description?: string;
-  /** Active nav item: 'home' | 'pulse' | 'pilot' | 'prism' | 'haul' */
+  /** Active nav item: 'home' | 'pulse' | 'pilot' | 'prism' | 'haul' | 'install' */
   active?: string;
 }
 
@@ -19,6 +19,7 @@ const nav = [
   { href: '/pilot', label: 'Pilot', key: 'pilot' },
   { href: '/prism', label: 'Prism', key: 'prism' },
   { href: '/haul', label: 'Haul', key: 'haul' },
+  { href: '/install', label: 'Install', key: 'install' },
 ];
 ---
 
@@ -101,6 +102,7 @@ const nav = [
             <a href="/pilot">Pilot</a>
             <a href="/prism">Prism</a>
             <a href="/haul">Haul</a>
+            <a href="/install">Install</a>
           </div>
           <div class="footer-col">
             <span class="footer-col-label">Source</span>

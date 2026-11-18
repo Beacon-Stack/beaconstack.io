@@ -30,7 +30,7 @@ import Base from '../layouts/Base.astro';
         <div class="app-meta">
           <span class="meta-pill">Port :8383</span>
           <span class="meta-pill">Go 1.25</span>
-          <span class="meta-pill">Postgres</span>
+          <span class="meta-pill">SQLite</span>
           <span class="meta-pill">MIT</span>
         </div>
       </div>
@@ -162,24 +162,22 @@ import Base from '../layouts/Base.astro';
       <div class="section-header reveal">
         <p class="section-label">Install</p>
         <h2 class="section-heading">Getting started with Pilot</h2>
-        <p class="section-lead">Standalone Docker or full stack via <a href="https://github.com/beacon-stack/deploy" target="_blank" rel="noopener noreferrer" class="text-link">beacon-stack/deploy</a>.</p>
+        <p class="section-lead">Pilot runs on its own, like Sonarr. Grab its compose file, set two paths and start it. To run it with Haul, Prism or Pulse, see the <a href="/install" class="text-link">install guide</a>.</p>
       </div>
-      <div class="terminal reveal" style="max-width:620px;">
+      <div class="terminal reveal" style="max-width:680px;">
         <div class="terminal-bar">
           <span class="terminal-dot terminal-dot--red"></span>
           <span class="terminal-dot terminal-dot--yellow"></span>
           <span class="terminal-dot terminal-dot--green"></span>
-          <span class="terminal-title">docker</span>
+          <span class="terminal-title">terminal</span>
           <button class="terminal-copy-btn" type="button">Copy</button>
         </div>
-        <pre class="terminal-body"><span class="syn-cmd">docker run</span> <span class="syn-flag">-d</span> \
-  <span class="syn-flag">--name</span> pilot \
-  <span class="syn-flag">-p</span> 8383:8383 \
-  <span class="syn-flag">-v</span> /path/to/config:/config \
-  <span class="syn-flag">-v</span> /path/to/tv:/tv \
-  ghcr.io/beacon-stack/pilot:latest</pre>
+        <pre class="terminal-body"><span class="syn-comment"># Get the compose file, then set its paths</span>
+<span class="syn-cmd">curl</span> <span class="syn-flag">-fsSLO</span> https://raw.githubusercontent.com/beacon-stack/pilot/main/docker/docker-compose.yml
+<span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
-      <p class="install-note reveal">Open <code>http://localhost:8383</code> — Pilot generates an API key on first run. Find it in Settings → App Settings.</p>
+      <p class="install-note reveal"><code>/data/media/tv</code> is created as Pilot's library on first start, along with default quality profiles.</p>
+      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8383</code>. No login is needed from your own network; to reach Pilot from elsewhere, set a username and password in Settings → App Settings → Security.</p>
     </div>
   </section>
 
@@ -188,20 +186,22 @@ import Base from '../layouts/Base.astro';
     <div class="container">
       <div class="section-header reveal">
         <p class="section-label">Configuration</p>
-        <h2 class="section-heading">Environment variables</h2>
+        <h2 class="section-heading">Mounts and environment variables</h2>
       </div>
       <div class="config-table-wrap reveal">
         <table class="config-table">
           <thead>
-            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+            <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>TV_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to your TV library. Bound into Pilot at <code>/tv</code>. Must be on the same filesystem as <code>DOWNLOADS_PATH</code> for hardlink imports.</td></tr>
-            <tr><td><code>DOWNLOADS_PATH</code></td><td>—</td><td><strong>Required.</strong> Host path to completed downloads. Shared across Pilot, Prism, and Haul.</td></tr>
-            <tr><td><code>PILOT_PORT</code></td><td><code>8383</code></td><td>Host port for the web UI and API. Set in <code>.env</code> if 8383 is taken.</td></tr>
-            <tr><td><code>PILOT_CONFIG_PATH</code></td><td><code>./config/pilot</code></td><td>Where Pilot's <code>config.yaml</code> and cached state live.</td></tr>
-            <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Set once in <code>.env</code>; Compose passes the same value to every Beacon service. <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
-            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone (e.g. <code>America/New_York</code>). Set once in <code>.env</code> and applied to every service for log timestamps and scheduled tasks.</td></tr>
+            <tr><td><code>/config</code></td><td>—</td><td><strong>Required mount.</strong> Pilot's database and settings. Keep it on a local disk.</td></tr>
+            <tr><td><code>/data</code></td><td>—</td><td><strong>Required mount.</strong> Your media and downloads in one folder, the same one every Beacon app gets. The library is <code>/data/media/tv</code>; downloads go to <code>/data/torrents/tv</code>. Must be writable by uid 1000.</td></tr>
+            <tr><td><code>PILOT_PULSE_URL</code></td><td>—</td><td>Pulse address, e.g. <code>http://pulse:9696</code>. Empty runs Pilot on its own.</td></tr>
+            <tr><td><code>PILOT_PULSE_API_KEY</code></td><td>—</td><td>Pulse's API key, needed with <code>PILOT_PULSE_URL</code>.</td></tr>
+            <tr><td><code>ADVERTISE_HOST</code></td><td><code>container hostname</code></td><td>Address Pulse uses to reach Pilot: the service name in one compose file, or the host's IP across separate ones.</td></tr>
+            <tr><td><code>PILOT_AUTH_API_KEY</code></td><td><code>generated</code></td><td>API key for scripts and other apps. Shown in Settings → App Settings.</td></tr>
+            <tr><td><code>PILOT_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
+            <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone, e.g. <code>America/New_York</code>.</td></tr>
           </tbody>
         </table>
       </div>
