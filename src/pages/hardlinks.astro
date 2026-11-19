@@ -1,0 +1,366 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Minimal YAML/shell highlighting: escape, then colour comments.
+function hl(src: string): string {
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return src
+    .trim()
+    .split('\n')
+    .map((line) => {
+      const i = line.search(/(^|\s)#/);
+      if (i < 0) return esc(line);
+      const at = line[i] === '#' ? i : i + 1;
+      return esc(line.slice(0, at)) + '<span class="syn-comment">' + esc(line.slice(at)) + '</span>';
+    })
+    .join('\n');
+}
+
+const flow = `
+/data
+├── torrents/tv/
+│   └── Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv   # 1. Haul downloads here, and keeps seeding it
+└── media/tv/
+    └── Some Show/Season 01/
+        └── Some Show - S01E01 - Pilot.mkv           # 2. Pilot hardlinks it here, renamed
+`;
+
+const right = `
+volumes:
+  - /srv/media:/data              # one mount: torrents and library inside it
+`;
+
+const wrong = `
+volumes:
+  - /srv/media/tv:/tv             # two mounts: every import is a full copy,
+  - /srv/media/downloads:/downloads  # even though both are on the same disk
+`;
+
+const nasFstab = `
+# /etc/fstab on the Docker host: mount the NAS share once
+192.168.1.20:/volume1/data  /mnt/nas/data  nfs  defaults,_netdev  0  0
+`;
+
+const nasCompose = `
+# Every app's compose file then uses that mount as /data
+volumes:
+  - /mnt/nas/data:/data
+`;
+
+const existing = `
+# Your NAS already has a library:        Mount the folder that holds it:
+#   /mnt/nas/media/TV                      - /mnt/nas/media:/data
+#   /mnt/nas/media/Movies
+#
+# Then:
+#   Haul    HAUL_TORRENT_DOWNLOAD_DIR: /data/torrents
+#   Pilot   Settings → Libraries → /data/TV
+#   Prism   Settings → Libraries → /data/Movies
+`;
+
+const check = `
+# On the Docker host, after an import. Use your own paths.
+stat -c '%i %h %n' \\
+  "/srv/media/torrents/tv/Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv" \\
+  "/srv/media/media/tv/Some Show/Season 01/Some Show - S01E01 - Pilot.mkv"
+
+# Hardlinked: same inode number (first column), link count 2 (second column)
+# 1837261 2 /srv/media/torrents/tv/Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv
+# 1837261 2 /srv/media/media/tv/Some Show/Season 01/Some Show - S01E01 - Pilot.mkv
+`;
+---
+
+<Base
+  title="Storage & hardlinks · The Beacon Stack"
+  description="How Beacon apps share one folder so imports are instant hardlinks, how to set it up on a local disk or a NAS, and how to check it works."
+  active="install"
+>
+
+  <section class="sub-hero">
+    <div class="sub-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="sub-hero-inner">
+        <span class="app-badge">Guide</span>
+        <h1 class="app-title"><span class="gradient-text">Storage &amp; hardlinks</span></h1>
+        <p class="app-tagline">
+          Give every app one folder and imports are instant, use no extra space, and keep
+          your torrents seeding. This page explains why, and how to set it up on a local
+          disk or a NAS.
+        </p>
+        <div class="app-actions">
+          <a href="/install" class="btn btn--outline">Back to install</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">How it works</p>
+        <h2 class="section-heading">From download to library</h2>
+        <p class="section-lead">
+          Pilot asks Haul to download an episode with the category <code>tv</code>. Haul saves
+          it under <code>/data/torrents/tv</code> with the release's own name. When it
+          finishes, Pilot imports it into your library with a clean name:
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">one file, two names</span>
+        </div>
+        <pre class="terminal-body" set:html={hl(flow)}></pre>
+      </div>
+      <ul class="points reveal">
+        <li><strong>Nothing is moved.</strong> The import is a hardlink: a second name for the same data on disk. It takes no time and no extra space, whatever the file's size.</li>
+        <li><strong>Seeding keeps working.</strong> Haul still has the file under its original name, so it can seed for as long as you want.</li>
+        <li><strong>Removing the torrent is safe.</strong> When Haul removes the torrent, only its name goes away. The library copy stays, because the data is freed only when the last name is deleted.</li>
+        <li><strong>Your media server only sees the library.</strong> Point Plex, Jellyfin or Emby at <code>media/tv</code> and <code>media/movies</code>, never at <code>torrents</code>.</li>
+        <li>Prism does the same with <code>torrents/movies</code> and <code>media/movies</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- The rule -->
+  <section class="section section--alt" id="rule">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">The one rule</p>
+        <h2 class="section-heading">Downloads and library in one mount</h2>
+        <p class="section-lead">
+          A hardlink can only be made inside one filesystem, and Docker treats every
+          <code>volumes:</code> line as its own filesystem. So the folder Haul downloads to and
+          your library must be inside the <em>same</em> mount, and every app must get that
+          mount at the same path, <code>/data</code>.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">right</span>
+        </div>
+        <pre class="terminal-body" set:html={hl(right)}></pre>
+      </div>
+      <div class="terminal reveal" style="margin-top:1rem;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">wrong</span>
+        </div>
+        <pre class="terminal-body" set:html={hl(wrong)}></pre>
+      </div>
+      <ul class="points reveal">
+        <li><strong>Same path in every app.</strong> Haul tells Pilot where a download is, and Pilot opens that path. If both see the folder at <code>/data</code>, the paths match and you need no remote path mappings.</li>
+        <li><strong>If a hardlink can't be made,</strong> Pilot and Prism copy the file instead. Imports still work, but they're slow and use twice the space while the torrent seeds.</li>
+        <li><strong>Permissions.</strong> The apps run as uid/gid 1000. Create the folder before the first start and give it to them, for example <code>sudo mkdir -p /srv/media &amp;&amp; sudo chown -R 1000:1000 /srv/media</code>. A folder Docker creates for you belongs to root, and downloads and imports fail.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Where -->
+  <section class="section" id="where">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Choosing the folder</p>
+        <h2 class="section-heading">Local disk or NAS</h2>
+        <p class="section-lead">
+          Any folder works if it's big enough for your library and your downloads together.
+        </p>
+      </div>
+      <ul class="points reveal">
+        <li><strong>A local disk:</strong> pick a folder such as <code>/srv/media</code> and mount it as <code>/data</code> in every app.</li>
+        <li><strong>A NAS:</strong> mount the share on the Docker host once, then mount that folder as <code>/data</code>. Use NFS if you can: it supports hardlinks. SMB/CIFS mounts often don't, so imports there fall back to copying.</li>
+        <li><strong>Docker running on the NAS itself</strong> (Synology, QNAP, unRAID): use one shared folder for everything, such as <code>/volume1/data</code> or <code>/mnt/user/data</code>. Two shared folders are two filesystems as far as hardlinks go.</li>
+        <li><strong>Config is separate.</strong> Each app's <code>/config</code> holds its database. Keep it on a local disk, not on the NAS, where SQLite can be slow or corrupt its database.</li>
+      </ul>
+      <div class="terminal reveal" style="margin-top:1.5rem;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">NAS over NFS</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(nasFstab)}></pre>
+      </div>
+      <div class="terminal reveal" style="margin-top:1rem;">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(nasCompose)}></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Existing library -->
+  <section class="section section--alt" id="existing">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Already have a library?</p>
+        <h2 class="section-heading">Use your own folder names</h2>
+        <p class="section-lead">
+          <code>torrents</code> and <code>media/tv</code> are only defaults. If your library
+          already lives somewhere, mount the folder that contains it as <code>/data</code> and
+          point the apps at the folders you have. Haul's downloads folder just has to be in
+          the same mount.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">example</span>
+        </div>
+        <pre class="terminal-body" set:html={hl(existing)}></pre>
+      </div>
+      <p class="install-note reveal">
+        After changing a library's folder, run a rescan from that library so Pilot or Prism
+        picks up the files already there.
+      </p>
+    </div>
+  </section>
+
+  <!-- Check -->
+  <section class="section" id="check">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Check it works</p>
+        <h2 class="section-heading">Is it a hardlink or a copy?</h2>
+        <p class="section-lead">
+          After your first import, compare the downloaded file with the library file. A
+          hardlink is the same file, so both names show the same inode number and a link
+          count of 2.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">shell</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(check)}></pre>
+      </div>
+      <p class="install-note reveal">Different inode numbers and a link count of 1 mean the import was a copy. The table below lists the usual causes.</p>
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="section section--alt" id="troubleshooting">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Troubleshooting</p>
+        <h2 class="section-heading">When imports copy or fail</h2>
+      </div>
+      <div class="table-wrap reveal">
+        <table class="guide-table">
+          <thead>
+            <tr><th>What you see</th><th>Likely cause</th><th>Fix</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Imports are slow and disk use doubles</td>
+              <td>Downloads and library are separate <code>volumes:</code> lines</td>
+              <td>Mount one parent folder as <code>/data</code> in every app</td>
+            </tr>
+            <tr>
+              <td>Still copying with one mount</td>
+              <td>The folders are on different disks, NAS shares or datasets</td>
+              <td>Move the downloads folder onto the same disk or share as the library</td>
+            </tr>
+            <tr>
+              <td>Copying on a NAS mount</td>
+              <td>The share is mounted over SMB/CIFS</td>
+              <td>Mount it over NFS instead</td>
+            </tr>
+            <tr>
+              <td>Pilot can't find a finished download</td>
+              <td>Haul and Pilot mount different host folders, or at different paths</td>
+              <td>Give both the same host folder at <code>/data</code></td>
+            </tr>
+            <tr>
+              <td>"Permission denied" when downloading or importing</td>
+              <td>The folder belongs to root</td>
+              <td><code>sudo chown -R 1000:1000</code> on the host folder</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .sub-hero { position: relative; padding: 100px 0 80px; overflow: hidden; }
+  .sub-hero-glow {
+    position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse at center, var(--color-accent-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .sub-hero-inner {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    max-width: 700px; margin: 0 auto; position: relative; z-index: 1;
+  }
+  .app-badge {
+    display: inline-flex; align-items: center; padding: 0.25em 0.75em; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    background-color: var(--color-accent-dim); border: 1px solid var(--color-accent-glow);
+    color: var(--color-accent); margin-bottom: 1.25rem;
+  }
+  .app-title {
+    font-size: clamp(2.25rem, 7vw, 4.5rem); font-weight: 900; letter-spacing: -0.04em;
+    line-height: 1.05; margin-bottom: 1.25rem;
+  }
+  .app-tagline { font-size: 1.125rem; color: var(--color-fg-2); line-height: 1.75; max-width: 56ch; margin-bottom: 2rem; }
+  .app-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+  .section { padding: 100px 0; border-top: 1px solid var(--color-border); }
+  .section--alt { background-color: var(--color-surface); }
+  .section-header { margin-bottom: 2rem; }
+  .narrow { max-width: 820px; }
+
+  .terminal-body { overflow-x: auto; }
+
+  .points {
+    margin-top: 1.5rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem;
+    color: var(--color-fg-2); font-size: 0.95rem; line-height: 1.7; list-style: disc;
+  }
+  .points strong { color: var(--color-fg-1, inherit); }
+
+  .install-note { margin-top: 1.25rem; font-size: 0.9rem; color: var(--color-fg-2); line-height: 1.7; }
+
+  .install-note code, .points code, .section-lead code, .guide-table code {
+    color: var(--color-accent); background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-glow); font-size: 0.875em;
+    padding: 0.1em 0.35em; border-radius: 3px; font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+
+  .table-wrap { overflow-x: auto; }
+  .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; line-height: 1.6; }
+  .guide-table th, .guide-table td {
+    text-align: left; vertical-align: top; padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--color-border); color: var(--color-fg-2);
+  }
+  .guide-table th { color: var(--color-fg-1, inherit); font-weight: 600; white-space: nowrap; }
+
+  @media (max-width: 900px) {
+    .sub-hero { padding: 80px 0 64px; }
+    .section { padding: 64px 0; }
+  }
+</style>
