@@ -209,6 +209,20 @@ services:
       # ...the rest of Haul's settings stay the same
 `;
 
+const includeFile = `
+# docker-compose.yml, in a folder next to the apps' own files:
+#
+#   beacon/
+#   ├── docker-compose.yml        <- this file
+#   ├── pilot/docker-compose.yml  <- Pilot's file, downloaded unchanged
+#   └── haul/docker-compose.yml   <- Haul's file
+include:
+  - pilot/docker-compose.yml
+  - haul/docker-compose.yml
+  # - prism/docker-compose.yml   # add apps as you go
+  # - pulse/docker-compose.yml
+`;
+
 const separate = `
 # In each app's own compose file (Pulse on 192.168.1.10):
 PILOT_PULSE_URL: http://192.168.1.10:9696
@@ -280,6 +294,10 @@ PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
         <li><strong>Permissions.</strong> The apps run as uid/gid 1000. Create the folder first and give it to them: <code>sudo mkdir -p /srv/media &amp;&amp; sudo chown 1000:1000 /srv/media</code>. Docker otherwise creates a missing folder as root and imports fail.</li>
         <li><strong>Config</strong> goes in a separate folder per app (<code>/opt/beacon/&lt;app&gt;</code> below). Keep it on a local disk, not a network share.</li>
       </ul>
+      <p class="install-note reveal">
+        Using a NAS, keeping your existing library folders, or checking that imports really are
+        hardlinks: see the <a href="/hardlinks" class="text-link">storage &amp; hardlinks guide</a>.
+      </p>
     </div>
   </section>
 
@@ -403,8 +421,40 @@ PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
     </div>
   </section>
 
+  <!-- Include -->
+  <section class="section" id="include">
+    <div class="container narrow">
+      <div class="section-header reveal">
+        <p class="section-label">Combining the apps' own files</p>
+        <h2 class="section-heading">One command, unchanged app files</h2>
+        <p class="section-lead">
+          Rather than copying services into one big file, you can keep each app's own compose
+          file as it ships and list them in a small top-level file. Docker Compose
+          (v2.20 or later) runs them as one project, so they reach each other by name, as in
+          the examples above.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">docker-compose.yml</span>
+          <button class="terminal-copy-btn" type="button">Copy</button>
+        </div>
+        <pre class="terminal-body" set:html={hl(includeFile)}></pre>
+      </div>
+      <ol class="steps reveal">
+        <li>Download each app's compose file (links at the top of this page) into its own folder.</li>
+        <li>In each one, set the two host paths. The <code>/data</code> path must be the <em>same</em> folder in every file.</li>
+        <li>To connect the apps, fill in the settings each file marks as optional. With Pulse, set <code>*_PULSE_URL</code> to <code>http://pulse:9696</code>, the API key, and <code>ADVERTISE_HOST</code> to the service's name (<code>pilot</code>, <code>haul</code>…); in Pulse's file set <code>PULSE_SERVER_EXTERNAL_URL</code> to <code>http://pulse:9696</code>. Without Pulse, add Haul in Pilot's Settings as <code>http://haul:8484</code>.</li>
+        <li>Run <code>docker compose up -d</code> next to the top-level file. To add an app later, add its line and run it again.</li>
+      </ol>
+    </div>
+  </section>
+
   <!-- Separate projects -->
-  <section class="section" id="separate">
+  <section class="section section--alt" id="separate">
     <div class="container narrow">
       <div class="section-header reveal">
         <p class="section-label">Mixing and matching</p>
@@ -427,7 +477,7 @@ PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
       </div>
       <ul class="points reveal">
         <li><strong>Download client:</strong> add Haul as <code>http://192.168.1.10:8484</code>, the same as you would add qBittorrent to Sonarr.</li>
-        <li><strong>Same files, same paths:</strong> the apps can share hardlinks only when they run on the same host and get the same folder at <code>/data</code>. On different hosts, give them the same network share at <code>/data</code>; imports then copy instead of hardlinking.</li>
+        <li><strong>Same files, same paths:</strong> every app must see the same files at <code>/data</code>. On one host, use the same folder. On different hosts, mount the same NAS share on each and use it as <code>/data</code>; over NFS imports are still hardlinks. See the <a href="/hardlinks" class="text-link">storage &amp; hardlinks guide</a>.</li>
       </ul>
     </div>
   </section>
