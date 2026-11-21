@@ -191,10 +191,14 @@ services:
       OPENVPN_USER: your-vpn-username
       OPENVPN_PASSWORD: your-vpn-password
       SERVER_REGIONS: Netherlands
-      FIREWALL_INPUT_PORTS: "8484"                 # Haul's UI and API
+      FIREWALL_INPUT_PORTS: "8484,8191"            # Haul, FlareSolverr
       FIREWALL_OUTBOUND_SUBNETS: "172.28.0.0/16"   # so Haul can reach Pulse
+      HTTP_CONTROL_SERVER_ADDRESS: ":8000"         # for Pulse's VPN panel
     volumes:
       - /opt/beacon/gluetun:/gluetun
+    configs:
+      - source: gluetun-auth
+        target: /gluetun/auth/config.toml
 
   # 3. Run Haul inside the VPN's network. Remove its ports: line.
   haul:
@@ -207,6 +211,46 @@ services:
     environment:
       ADVERTISE_HOST: vpn           # Haul is now reached through the VPN
       # ...the rest of Haul's settings stay the same
+
+  # 4. Optional: FlareSolverr, for indexers behind Cloudflare. In the
+  #    VPN's network, so Cloudflare sees the VPN's IP, not your home IP.
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    network_mode: service:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+
+  # 5. Pulse shows the VPN, and can rotate its IP or change its region.
+  pulse:
+    environment:
+      PULSE_DASHBOARD_GLUETUN_URL: http://vpn:8000
+      PULSE_DASHBOARD_GLUETUN_API_KEY: \${GLUETUN_API_KEY}
+      PULSE_DASHBOARD_GLUETUN_SERVERS_DIR: /gluetun-servers
+      PULSE_FLARESOLVERR_URL: http://vpn:8191
+      # ...the rest of Pulse's settings stay the same
+    volumes:
+      - /opt/beacon/gluetun/servers:/gluetun-servers:ro   # region list
+
+# 6. What Pulse may do on the VPN's control server. Status is open to
+#    the network; anything that changes the VPN needs the key.
+configs:
+  gluetun-auth:
+    content: |
+      [[roles]]
+      name = "pulse-status"
+      routes = ["GET /v1/version", "GET /v1/publicip/ip", "GET /v1/portforward",
+                "GET /v1/openvpn/portforwarded", "GET /v1/openvpn/settings",
+                "GET /v1/openvpn/status", "GET /v1/dns/status"]
+      auth = "none"
+
+      [[roles]]
+      name = "pulse-control"
+      routes = ["PUT /v1/openvpn/status", "GET /v1/vpn/settings", "PUT /v1/vpn/settings"]
+      auth = "apikey"
+      apikey = "\${GLUETUN_API_KEY}"
 `;
 
 const includeFile = `
@@ -417,6 +461,11 @@ PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
         If your provider supports port forwarding, set <code>VPN_PORT_FORWARDING: "on"</code>,
         <code>VPN_PORT_FORWARDING_LISTENING_PORT: "6881"</code> and
         <code>FIREWALL_VPN_INPUT_PORTS: "6881"</code> on the VPN container for better speeds.
+      </p>
+      <p class="install-note reveal">
+        Put <code>GLUETUN_API_KEY</code> in your <code>.env</code> file, set to any long random
+        string (for example the output of <code>openssl rand -hex 24</code>). Pulse uses it to
+        rotate the VPN's IP and change its region from the dashboard.
       </p>
     </div>
   </section>
