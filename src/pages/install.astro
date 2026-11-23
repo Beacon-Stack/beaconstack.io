@@ -194,6 +194,7 @@ services:
       FIREWALL_INPUT_PORTS: "8484,8191"            # Haul, FlareSolverr
       FIREWALL_OUTBOUND_SUBNETS: "172.28.0.0/16"   # so Haul can reach Pulse
       HTTP_CONTROL_SERVER_ADDRESS: ":8000"         # for Pulse's VPN panel
+      HTTPPROXY: "on"                              # Pulse's indexer searches; not published
     volumes:
       - /opt/beacon/gluetun:/gluetun
     configs:
@@ -224,12 +225,15 @@ services:
         condition: service_healthy
 
   # 5. Pulse shows the VPN, and can rotate its IP or change its region.
+  #    Its indexer searches and .torrent downloads go through the VPN too;
+  #    if the VPN is down they fail rather than use your home IP.
   pulse:
     environment:
       PULSE_DASHBOARD_GLUETUN_URL: http://vpn:8000
       PULSE_DASHBOARD_GLUETUN_API_KEY: \${GLUETUN_API_KEY}
       PULSE_DASHBOARD_GLUETUN_SERVERS_DIR: /gluetun-servers
       PULSE_FLARESOLVERR_URL: http://vpn:8191
+      PULSE_SCRAPER_PROXY_URL: http://vpn:8888
       # ...the rest of Pulse's settings stay the same
     volumes:
       - /opt/beacon/gluetun/servers:/gluetun-servers:ro   # region list
