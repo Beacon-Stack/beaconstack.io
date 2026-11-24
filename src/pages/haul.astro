@@ -91,8 +91,8 @@ import Base from '../layouts/Base.astro';
           <div class="icon-chip">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
-          <h3>Webhooks and REST API</h3>
-          <p>Webhooks filtered by event type (added, completed, stalled, speed update). Full REST API at <code>/api/v1/</code> with OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/api/v1/ws</code>. Per-torrent and global rate limits.</p>
+          <h3>Notifications and REST API</h3>
+          <p>Notifications for finished and stalled downloads to Discord, Slack, Telegram, ntfy, Pushover, Gotify, email or another app's URL, set up once in Pulse or in Haul itself. Full REST API at <code>/api/v1/</code> with OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/api/v1/ws</code>. Per-torrent and global rate limits.</p>
         </div>
 
       </div>
@@ -131,7 +131,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Rate tracker</h3>
-          <p>anacrolix/torrent exposes cumulative byte counters, not rates. Haul samples those counters on each API request and pushes them through an exponential moving average with a 5-second time constant. The math lives in <code>internal/core/torrent/session.go</code>.</p>
+          <p>anacrolix/torrent exposes cumulative byte counters, not rates. Haul samples those counters on each API request and pushes them through an exponential moving average with a 5-second time constant. The math lives in <code>internal/core/torrent/rate.go</code>.</p>
         </div>
 
         <div class="detail-card">
@@ -141,7 +141,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Pilot / Prism integration</h3>
-          <p>Pilot and Prism POST to <code>/api/v1/torrents</code> when they grab a release, passing through media metadata so Haul can rename on completion. Haul fires webhooks on completion and publishes stall events to <code>/api/v1/stalls</code>, which Pilot polls to blocklist dead torrents automatically.</p>
+          <p>Pilot and Prism POST to <code>/api/v1/torrents</code> when they grab a release, passing through media metadata so Haul can rename on completion. Haul sends notifications on completion and publishes stall events to <code>/api/v1/stalls</code>, which Pilot polls to blocklist dead torrents automatically.</p>
         </div>
 
         <div class="detail-card">
@@ -174,7 +174,7 @@ import Base from '../layouts/Base.astro';
 <span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
       <p class="install-note reveal">Torrents are saved in <code>/data/torrents/&lt;category&gt;</code>: Pilot's in <code>tv</code>, Prism's in <code>movies</code>.</p>
-      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8484</code>. Add Haul to Pilot or Prism as a download client with <code>http://&lt;host&gt;:8484</code>; on the same network no key is needed.</p>
+      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8484</code>. No login is needed from your own network, and connections from anywhere else are refused. To reach Haul from outside, or to require a login from everyone, set a username and password in Settings → Security. Add Haul to Pilot or Prism as a download client with <code>http://&lt;host&gt;:8484</code>; on the same network no key is needed.</p>
     </div>
   </section>
 
@@ -198,6 +198,9 @@ import Base from '../layouts/Base.astro';
             <tr><td><code>HAUL_PULSE_URL</code></td><td>—</td><td>Pulse address. With it, Haul registers itself as Pilot's and Prism's download client.</td></tr>
             <tr><td><code>HAUL_PULSE_API_KEY</code></td><td>—</td><td>Pulse's API key, needed with <code>HAUL_PULSE_URL</code>.</td></tr>
             <tr><td><code>ADVERTISE_HOST</code></td><td><code>container hostname</code></td><td>Address Pilot and Prism use to reach Haul: <code>haul</code>, <code>vpn</code> behind a VPN, or the host's IP across separate compose files.</td></tr>
+            <tr><td><code>HAUL_AUTH_API_KEY</code></td><td><code>generated</code></td><td>API key for scripts and other apps. When unset, Haul keeps one in <code>/config/api_key</code>.</td></tr>
+            <tr><td><code>HAUL_AUTH_LOCAL_NETWORKS</code></td><td>—</td><td>Extra address ranges that count as your local network, comma-separated, e.g. <code>100.64.0.0/10</code>. The private ranges (192.168.x.x, 10.x.x.x, 172.16–31.x.x) always do. Also editable in Settings.</td></tr>
+            <tr><td><code>HAUL_SERVER_ALLOWED_HOSTS</code></td><td>—</td><td>Extra names Haul may be opened under without a login, comma-separated, e.g. <code>haul.example.com</code> behind a reverse proxy. IP addresses and local names always work.</td></tr>
             <tr><td><code>HAUL_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
             <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone, e.g. <code>America/New_York</code>.</td></tr>
           </tbody>

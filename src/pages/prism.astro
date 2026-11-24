@@ -178,7 +178,7 @@ import Base from '../layouts/Base.astro';
 <span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
       <p class="install-note reveal"><code>/data/media/movies</code> is created as Prism's library on first start, along with default quality profiles.</p>
-      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8282</code>. Prism generates an API key on first run; find it in Settings → App Settings.</p>
+      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8282</code>. No login is needed from your own network, and connections from anywhere else are refused. To reach Prism from outside, or to require a login from everyone, set a username and password in Settings → App Settings → Security. Prism generates an API key for scripts and other tools on first run; find it in Settings → App Settings.</p>
     </div>
   </section>
 
@@ -201,6 +201,8 @@ import Base from '../layouts/Base.astro';
             <tr><td><code>PRISM_PULSE_API_KEY</code></td><td>—</td><td>Pulse's API key, needed with <code>PRISM_PULSE_URL</code>.</td></tr>
             <tr><td><code>ADVERTISE_HOST</code></td><td><code>container hostname</code></td><td>Address Pulse uses to reach Prism: the service name in one compose file, or the host's IP across separate ones.</td></tr>
             <tr><td><code>PRISM_AUTH_API_KEY</code></td><td><code>generated</code></td><td>API key for scripts and other apps. Shown in Settings → App Settings.</td></tr>
+            <tr><td><code>PRISM_AUTH_LOCAL_NETWORKS</code></td><td>—</td><td>Extra address ranges that count as your local network, comma-separated, e.g. <code>100.64.0.0/10</code>. The private ranges (192.168.x.x, 10.x.x.x, 172.16–31.x.x) always do. Also editable in Settings.</td></tr>
+            <tr><td><code>PRISM_SERVER_ALLOWED_HOSTS</code></td><td>—</td><td>Extra names Prism may be opened under without a login, comma-separated, e.g. <code>prism.example.com</code> behind a reverse proxy. IP addresses and local names always work.</td></tr>
             <tr><td><code>PRISM_LOG_LEVEL</code></td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td></tr>
             <tr><td><code>TZ</code></td><td><code>UTC</code></td><td>IANA timezone, e.g. <code>America/New_York</code>.</td></tr>
           </tbody>
