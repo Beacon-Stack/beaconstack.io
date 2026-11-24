@@ -115,7 +115,7 @@ services:
     volumes:
       - /opt/beacon/pulse:/config
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9696/health"]
+      test: ["CMD", "/app/pulse", "healthcheck"]
       interval: 15s
       start_period: 20s
 
