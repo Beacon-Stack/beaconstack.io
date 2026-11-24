@@ -92,7 +92,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <h3>Webhooks and REST API</h3>
-          <p>Webhooks filtered by event type (added, completed, stalled, speed update). Full REST API at <code>/api/v1/</code> with OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/ws</code>. Per-torrent and global rate limits.</p>
+          <p>Webhooks filtered by event type (added, completed, stalled, speed update). Full REST API at <code>/api/v1/</code> with OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/api/v1/ws</code>. Per-torrent and global rate limits.</p>
         </div>
 
       </div>
@@ -146,7 +146,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Per-category save paths</h3>
-          <p>Categories support path templates with metadata variables. When a torrent arrives with media metadata from Pilot or Prism, the category's path template is expanded before the download starts. Combine with rename-on-complete for fully automatic library filing.</p>
+          <p>Each category has its own save folder: Pilot's downloads land in <code>tv</code>, Prism's in <code>movies</code>, and you can add your own. Each torrent's files are written straight to its category's folder. Combine with rename-on-complete for fully automatic library filing.</p>
         </div>
 
       </div>
@@ -174,7 +174,7 @@ import Base from '../layouts/Base.astro';
 <span class="syn-cmd">docker compose up</span> <span class="syn-flag">-d</span></pre>
       </div>
       <p class="install-note reveal">Torrents are saved in <code>/data/torrents/&lt;category&gt;</code>: Pilot's in <code>tv</code>, Prism's in <code>movies</code>.</p>
-      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8484</code>. Haul generates an API key on first run (Settings → System); add Haul to Pilot or Prism with that key and <code>http://&lt;host&gt;:8484</code>.</p>
+      <p class="install-note reveal">Open <code>http://&lt;host&gt;:8484</code>. Add Haul to Pilot or Prism as a download client with <code>http://&lt;host&gt;:8484</code>; on the same network no key is needed.</p>
     </div>
   </section>
 

@@ -373,8 +373,7 @@ PULSE_SERVER_EXTERNAL_URL: http://192.168.1.10:9696
       </div>
       <ol class="steps reveal">
         <li>Run <code>docker compose up -d</code>.</li>
-        <li>Open Haul at <code>http://&lt;host&gt;:8484</code> and copy its API key from Settings.</li>
-        <li>Open Pilot at <code>http://&lt;host&gt;:8383</code>. Under Settings → Download Clients, add Haul with URL <code>http://haul:8484</code> (apps in one compose file reach each other by service name) and that API key.</li>
+        <li>Open Pilot at <code>http://&lt;host&gt;:8383</code>. Under Settings → Download Clients, add Haul with URL <code>http://haul:8484</code> (apps in one compose file reach each other by service name). No API key is needed between apps on the same network.</li>
         <li>Add your indexers in Pilot, then add a series. Pilot already has a TV library at <code>/data/media/tv</code> and default quality profiles.</li>
       </ol>
     </div>
