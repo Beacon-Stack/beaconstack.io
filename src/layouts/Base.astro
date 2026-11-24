@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { GA_MEASUREMENT_ID } from '../analytics';
 
 export interface Props {
   title: string;
@@ -37,6 +38,45 @@ const nav = [
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    {GA_MEASUREMENT_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script is:inline define:vars={{ id: GA_MEASUREMENT_ID }}>
+          // Google Analytics, with consent asked only where the law wants
+          // it. Visitors in Europe (judged by their clock's time zone, so
+          // no lookup is needed) are not measured with cookies until they
+          // accept; everyone else is measured straight away.
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          window.gtag = gtag;
+
+          var tz = '';
+          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+          var europe = /^Europe\//.test(tz) || /^(Atlantic\/(Canary|Madeira|Azores|Reykjavik|Faroe)|Arctic\/Longyearbyen|Asia\/(Nicosia|Famagusta))$/.test(tz);
+          var choice = null;
+          try { choice = localStorage.getItem('beacon-analytics-consent'); } catch (e) {}
+
+          var allowed = europe ? choice === 'granted' : choice !== 'denied';
+          gtag('consent', 'default', {
+            analytics_storage: allowed ? 'granted' : 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+          });
+          gtag('js', new Date());
+          gtag('config', id);
+
+          window.beaconConsent = {
+            needsAnswer: europe && choice === null,
+            inEurope: europe,
+            set: function (granted) {
+              try { localStorage.setItem('beacon-analytics-consent', granted ? 'granted' : 'denied'); } catch (e) {}
+              gtag('consent', 'update', { analytics_storage: granted ? 'granted' : 'denied' });
+            },
+          };
+        </script>
+      </>
+    )}
   </head>
   <body data-app={active}>
     <header class="site-header">
@@ -93,7 +133,7 @@ const nav = [
       <div class="footer-inner">
         <div class="footer-brand">
           <a href="/" class="footer-wordmark">The Beacon Stack</a>
-          <p class="footer-tagline">Self-hosted media stack. MIT licensed. Zero telemetry.</p>
+          <p class="footer-tagline">Self-hosted media stack. MIT licensed. The apps send no telemetry.</p>
         </div>
         <div class="footer-links">
           <div class="footer-col">
@@ -116,8 +156,10 @@ const nav = [
           <div class="footer-col">
             <span class="footer-col-label">About</span>
             <span class="footer-note">Built in the open</span>
-            <span class="footer-note">No crash reporting</span>
-            <span class="footer-note">No analytics</span>
+            <span class="footer-note">Apps: no crash reporting</span>
+            <span class="footer-note">Apps: no analytics</span>
+            {GA_MEASUREMENT_ID && <span class="footer-note">This site uses Google Analytics</span>}
+            {GA_MEASUREMENT_ID && <a href="#" id="consent-change" class="footer-note" hidden>Cookie choices</a>}
           </div>
         </div>
       </div>
@@ -179,6 +221,39 @@ const nav = [
         dlg.addEventListener('click', () => dlg.close());
       }
     </script>
+    {GA_MEASUREMENT_ID && (
+      <>
+        <div id="consent-banner" class="consent-banner" role="dialog" aria-label="Analytics cookies" hidden>
+          <p>
+            This site uses Google Analytics cookies to count visits. The Beacon apps themselves send nothing.
+          </p>
+          <div class="consent-actions">
+            <button type="button" id="consent-decline" class="consent-btn">Decline</button>
+            <button type="button" id="consent-accept" class="consent-btn consent-btn-primary">Accept</button>
+          </div>
+        </div>
+        <script is:inline>
+          (function () {
+            var c = window.beaconConsent;
+            var banner = document.getElementById('consent-banner');
+            if (!c || !banner) return;
+            function answer(granted) {
+              c.set(granted);
+              banner.hidden = true;
+            }
+            document.getElementById('consent-accept').addEventListener('click', function () { answer(true); });
+            document.getElementById('consent-decline').addEventListener('click', function () { answer(false); });
+            if (c.needsAnswer) banner.hidden = false;
+            // Visitors in Europe can change their answer from the footer.
+            var link = document.getElementById('consent-change');
+            if (link && c.inEurope) {
+              link.hidden = false;
+              link.addEventListener('click', function (e) { e.preventDefault(); banner.hidden = false; });
+            }
+          })();
+        </script>
+      </>
+    )}
   </body>
 </html>
 
@@ -448,5 +523,48 @@ const nav = [
     .footer-bottom-inner {
       padding: 1rem 1.25rem;
     }
+  }
+  .consent-banner {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 16px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border-2);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+  .consent-banner[hidden] { display: none; }
+  .consent-banner p {
+    flex: 1 1 260px;
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--color-fg-2);
+  }
+  .consent-actions { display: flex; gap: 8px; margin-left: auto; }
+  .consent-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--color-fg);
+    background: transparent;
+    border: 1px solid var(--color-border-2);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .consent-btn-primary {
+    color: #06130e;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
   }
 </style>
