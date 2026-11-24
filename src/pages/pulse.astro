@@ -83,7 +83,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <h3>WebSocket event stream</h3>
-          <p>Pulse pushes live updates over <code>/ws</code> and fires per-service sync hooks the moment shared state changes — indexer added, quality profile edited, settings updated. Consumers don't have to wait for the next 30-second poll.</p>
+          <p>Pulse pushes live updates over <code>/api/v1/ws</code> and fires per-service sync hooks the moment shared state changes — indexer added, quality profile edited, settings updated. Consumers don't have to wait for the next 30-second poll.</p>
         </div>
 
         <div class="feature-card">
@@ -134,7 +134,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>API surface</h3>
-          <p>Full REST API (Huma v2 + Chi v5) under <code>/api/v1/</code>. OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/ws</code>. Everything the UI does is available over HTTP.</p>
+          <p>Full REST API (Huma v2 + Chi v5) under <code>/api/v1/</code>. OpenAPI docs at <code>/api/docs</code>. WebSocket event stream at <code>/api/v1/ws</code>. Everything the UI does is available over HTTP.</p>
         </div>
 
         <div class="detail-card">
@@ -165,7 +165,7 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
 
         <div class="detail-card">
           <h3>Tag management</h3>
-          <p>Central tag registry with usage counts. Tags drive indexer assignment (<code>tv</code>, <code>movies</code>, <code>all</code>), notification routing, and library filtering across every service — managed once in Pulse.</p>
+          <p>A central tag registry with usage counts, managed once in Pulse.</p>
         </div>
 
       </div>
