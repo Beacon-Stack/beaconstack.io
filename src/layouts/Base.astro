@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { GA_MEASUREMENT_ID } from '../analytics';
 
 export interface Props {
   title: string;
@@ -37,6 +38,17 @@ const nav = [
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    {GA_MEASUREMENT_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script is:inline define:vars={{ id: GA_MEASUREMENT_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', id);
+        </script>
+      </>
+    )}
   </head>
   <body data-app={active}>
     <header class="site-header">
@@ -93,7 +105,7 @@ const nav = [
       <div class="footer-inner">
         <div class="footer-brand">
           <a href="/" class="footer-wordmark">The Beacon Stack</a>
-          <p class="footer-tagline">Self-hosted media stack. MIT licensed. Zero telemetry.</p>
+          <p class="footer-tagline">Self-hosted media stack. MIT licensed. The apps send no telemetry.</p>
         </div>
         <div class="footer-links">
           <div class="footer-col">
@@ -116,8 +128,9 @@ const nav = [
           <div class="footer-col">
             <span class="footer-col-label">About</span>
             <span class="footer-note">Built in the open</span>
-            <span class="footer-note">No crash reporting</span>
-            <span class="footer-note">No analytics</span>
+            <span class="footer-note">Apps: no crash reporting</span>
+            <span class="footer-note">Apps: no analytics</span>
+            {GA_MEASUREMENT_ID && <span class="footer-note">This site uses Google Analytics</span>}
           </div>
         </div>
       </div>
