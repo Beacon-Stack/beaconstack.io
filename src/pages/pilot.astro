@@ -139,7 +139,7 @@ import Base from '../layouts/Base.astro';
 
         <div class="detail-card">
           <h3>Stallwatcher circuit breaker</h3>
-          <p><code>internal/core/stallwatcher/service.go</code> polls the download client's stall endpoint on a configurable interval, classifies stalled torrents by reason, and blocklists them. The per-episode circuit breaker caps auto-blocklist events at three strikes per 24 hours.</p>
+          <p><code>internal/core/stallwatcher/service.go</code> asks Haul once a minute which torrents have stalled, classifies them by reason, and blocklists them. The per-episode circuit breaker caps auto-blocklist events at three strikes per 24 hours. Both numbers are fixed; what counts as stalled is set in Haul, under Settings → Queue → Stall Timeout.</p>
         </div>
 
         <div class="detail-card">
