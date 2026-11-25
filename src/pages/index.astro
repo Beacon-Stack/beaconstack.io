@@ -202,8 +202,8 @@ import Base from '../layouts/Base.astro';
           <p class="app-desc">
             Built on anacrolix/torrent. Accurate ETAs from exponential moving averages,
             multi-level stall detection that catches dead torrents the rest of the
-            stack misses, and rename-on-complete using media metadata passed by
-            Pilot or Prism. VPN-aware dashboard.
+            stack misses, and a folder per category that Pilot and Prism import
+            from. VPN-aware dashboard.
           </p>
           <span class="app-port">:8484</span>
           <span class="app-link">Deep dive &rarr;</span>
@@ -539,8 +539,10 @@ import Base from '../layouts/Base.astro';
           <h3>Zero telemetry, MIT licensed</h3>
           <p>
             No analytics and no crash reporting. The apps ask GitHub about new versions
-            only when you press Check for updates. Everything else runs in your network
-            and stays there. All four apps are MIT licensed and built in the open.
+            only when you press Check for updates. Otherwise they contact only what
+            the job needs: your indexers, TMDB for metadata, and any lists or
+            notifications you set up. Haul also looks up its public IP to show
+            whether the VPN is working. All four apps are MIT licensed and built in the open.
           </p>
         </div>
 

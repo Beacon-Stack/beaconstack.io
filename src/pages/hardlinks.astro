@@ -21,8 +21,8 @@ const flow = `
 ├── torrents/tv/
 │   └── Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv   # 1. Haul downloads here, and keeps seeding it
 └── media/tv/
-    └── Some Show/Season 01/
-        └── Some Show - S01E01 - Pilot.mkv           # 2. Pilot hardlinks it here, renamed
+    └── Some Show (2024)/Season 01/
+        └── Some Show - S01E01 - Pilot WEBDL-1080p.mkv   # 2. Pilot hardlinks it here, renamed
 `;
 
 const right = `
@@ -62,11 +62,11 @@ const check = `
 # On the Docker host, after an import. Use your own paths.
 stat -c '%i %h %n' \\
   "/srv/media/torrents/tv/Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv" \\
-  "/srv/media/media/tv/Some Show/Season 01/Some Show - S01E01 - Pilot.mkv"
+  "/srv/media/media/tv/Some Show (2024)/Season 01/Some Show - S01E01 - Pilot WEBDL-1080p.mkv"
 
 # Hardlinked: same inode number (first column), link count 2 (second column)
 # 1837261 2 /srv/media/torrents/tv/Some.Show.S01E01.1080p.WEB-DL.x264-GRP.mkv
-# 1837261 2 /srv/media/media/tv/Some Show/Season 01/Some Show - S01E01 - Pilot.mkv
+# 1837261 2 /srv/media/media/tv/Some Show (2024)/Season 01/Some Show - S01E01 - Pilot WEBDL-1080p.mkv
 `;
 ---
 

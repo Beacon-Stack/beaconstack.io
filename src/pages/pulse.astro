@@ -51,7 +51,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </div>
           <h3>Service registry</h3>
-          <p>Each Beacon service registers on startup with its name, type, URL, and capabilities, then heartbeats periodically. Move Pilot to a new host — Prism picks up the address on the next heartbeat cycle with no config edits.</p>
+          <p>Each Beacon service registers on startup with its name, type, URL, and capabilities, then heartbeats periodically. Move Haul to a new host and Pilot and Prism pick up its new address on their next sync, with no config edits.</p>
         </div>
 
         <div class="feature-card">
@@ -67,7 +67,7 @@ import Base from '../layouts/Base.astro';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
           <h3>Quality profile management</h3>
-          <p>A quality profile is a ranked list of acceptable resolutions, sources, and codecs plus an upgrade cutoff — what the manager will and won't grab, and when it stops looking for something better. Profiles live in Pulse and mirror to Pilot and Prism with a <code>managed_by_pulse</code> flag: synced copies are read-only, local-only profiles still work for per-app overrides. Edit a 1080p cutoff once in Pulse and both services update on the next sync.</p>
+          <p>A quality profile is a ranked list of acceptable resolutions, sources, and codecs plus an upgrade cutoff — what the manager will and won't grab, and when it stops looking for something better. Profiles live in Pulse and mirror to Pilot and Prism with a <code>managed_by_pulse</code> flag: editing a synced copy in an app detaches it from Pulse, and local-only profiles still work for per-app overrides. Edit a 1080p cutoff once in Pulse and both services update on the next sync.</p>
         </div>
 
         <div class="feature-card">
@@ -210,7 +210,7 @@ clients,  _ := client.DiscoverByType(ctx, <span class="syn-string">"download-cli
           </thead>
           <tbody>
             <tr><td><code>/config</code></td><td>—</td><td><strong>Required mount.</strong> Pulse's database and settings. Keep it on a local disk.</td></tr>
-            <tr><td><code>PULSE_SERVER_EXTERNAL_URL</code></td><td><code>http://localhost:9696</code></td><td>Address the other apps use to reach Pulse; it goes into the indexer URLs Pulse hands out. Use <code>http://pulse:9696</code> in one compose file, or the host's IP across separate ones.</td></tr>
+            <tr><td><code>PULSE_SERVER_EXTERNAL_URL</code></td><td><code>http://pulse:9696</code></td><td>Address the other apps use to reach Pulse; it goes into the indexer URLs Pulse hands out. Use <code>http://pulse:9696</code> in one compose file, or the host's IP across separate ones.</td></tr>
             <tr><td><code>PULSE_AUTH_API_KEY</code></td><td><code>generated</code></td><td>Pulse's API key. Setting it lets the apps share one key from a <code>.env</code> file.</td></tr>
             <tr><td><code>PULSE_AUTH_LOCAL_NETWORKS</code></td><td>—</td><td>Extra address ranges that count as your local network, comma-separated, e.g. <code>100.64.0.0/10</code>. The private ranges (192.168.x.x, 10.x.x.x, 172.16–31.x.x) always do. Also editable in Settings.</td></tr>
             <tr><td><code>PULSE_SERVER_ALLOWED_HOSTS</code></td><td>—</td><td>Extra names Pulse may be opened under without a login, comma-separated, e.g. <code>pulse.example.com</code> behind a reverse proxy. IP addresses and local names always work.</td></tr>
